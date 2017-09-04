@@ -1,0 +1,44 @@
+defaults: &defaults
+  working_directory: ~/ff-stats
+  docker:
+    - image: fpco/stack-build:lts-9.3
+      environment:
+        DATABASE_URL: postgres://user@localhost:5432/ff-stats
+    - image: postgres:9.6.2
+      environment:
+        POSTGRES_USER: user
+        POSTGRES_PASSWORD: ""
+        POSTGRES_DB: ff-stats
+
+version: 2
+jobs:
+  build:
+    <<: *defaults
+    steps:
+      - checkout
+      - restore_cache:
+          key: v1-stack-cache-{{ checksum "stack.yaml" }}-{{ checksum "ff-stats.cabal" }}
+      - run: stack setup
+      - run: stack build --only-dependencies
+      - run: stack build --test --no-run-tests
+      - save_cache:
+          key: v1-stack-cache-{{ checksum "stack.yaml" }}-{{ checksum "ff-stats.cabal" }}
+          paths:
+            - ~/.stack
+            - .stack-work
+  test:
+    <<: *defaults
+    steps:
+      - checkout
+      - restore_cache:
+          key: v1-stack-cache-{{ checksum "stack.yaml" }}-{{ checksum "ff-stats.cabal" }}
+      - run: stack test
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build
+      - test:
+          requires:
+            - build
