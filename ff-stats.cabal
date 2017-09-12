@@ -34,9 +34,11 @@ executable best-pick-em
   default-language:    Haskell2010
 
 executable fetch-week-projection
-  hs-source-dirs:      src
-  main-is:             FetchWeekProjection.hs
+  hs-source-dirs:      app
+                     , src
+  main-is:             FetchWeekProjectionMain.hs
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  other-modules:       FetchWeekProjection
   build-depends:       base
                      , bytestring
                      , html-conduit
