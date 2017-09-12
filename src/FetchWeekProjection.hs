@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Main where
+module FetchWeekProjection where
 
 import           Control.Lens ((.~), (^.))
 import           Data.ByteString.Lazy (ByteString)
@@ -17,26 +17,16 @@ import           Text.Read (readEither)
 import           Text.XML (toXMLNode)
 import           Text.XML.Cursor (Cursor, ($//), (>=>), (&//), attributeIs, content, element, fromDocument, node)
 
-data Params = Params
-    { name     :: T.Text
-    , week     :: T.Text }
-    deriving (Eq, Show)
-
-paramsParser :: Parser Params
-paramsParser = Params
-    <$> option text ( long "name")
-    <*> option text ( long "week")
-
-request :: Params -> IO (Response ByteString)
-request params =
-    let opts = defaults & param "week" .~ [week params]
+request :: T.Text -> T.Text -> IO (Response ByteString)
+request name week =
+    let opts = defaults & param "week" .~ [week]
         name' =
-            params
-              & name
+            name
               & T.replace " Jr." ""
               & T.replace " Sr." ""
               & T.replace " II" ""
               & T.replace "." ""
+              & T.replace "'" ""
               & T.replace " " "-"
               & T.toLower
               & T.unpack
@@ -44,18 +34,9 @@ request params =
     in
         getWith opts url
 
-main :: IO ()
-main = do
-    params <- execParser opts
-    projectedScore <- getProjectedScore params
-    print projectedScore
-  where
-    opts = info (paramsParser <**> helper)
-      ( fullDesc <> progDesc "A player's projected pts for a given week" )
-
-getProjectedScore :: Params -> IO (Either String Float)
-getProjectedScore params = do
-    resp <- request params
+getProjectedScore :: T.Text -> T.Text -> IO (Either String Float)
+getProjectedScore name week = do
+    resp <- request name week
     let body = resp ^. responseBody
         outlook = listToMaybe $
                     (fromDocument $ parseLBS body)
@@ -63,7 +44,7 @@ getProjectedScore params = do
     case outlook of
       Just cursor ->
           case cursor $// (element "span" >=> attributeIs "class" "pull-right") of
-            [] -> return $ Left $ "Player projected score not found for: " <> show params
+            [] -> return $ Left $ "Player projected score not found for: " <> show name <> " week " <> show week
             cursors ->
                 cursors
                 & last
@@ -75,4 +56,4 @@ getProjectedScore params = do
                 & T.unpack
                 & readEither
                 & return
-      Nothing -> return . Left $ "Player outlook div not found for: " <> show params
+      Nothing -> return . Left $ "Player outlook div not found for: " <> show name <> " week " <> show week

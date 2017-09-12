@@ -6,4 +6,4 @@
 
 # Get the best pick 'em lineup for a week
 
-`stack exec best-pick-em -- --file /path/to/csv`
+`stack exec best-pick-em -- --file /path/to/csv --week 2`
