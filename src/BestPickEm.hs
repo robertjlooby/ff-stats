@@ -5,6 +5,8 @@ module Main where
 import qualified Data.ByteString.Lazy as BL
 import           Data.Csv (FromNamedRecord(..), (.:), decodeByName)
 import           Data.Function ((&))
+import qualified Data.Map.Strict as Map
+import           Data.Map.Strict (Map)
 import           Data.Semigroup ((<>))
 import qualified Data.Text as T
 import qualified Data.Vector as V
@@ -13,7 +15,7 @@ import           Data.Vector.Algorithms.Merge (sort)
 import           Options.Applicative (Parser, (<**>), execParser, fullDesc, helper, info, long, option, progDesc, str)
 import           Options.Applicative.Text (text)
 
-import FetchWeekProjection (getProjectedScore)
+import FetchWeekProjection (getProjectedScore, paramifyName)
 
 data Player = Player
     { name :: T.Text
@@ -113,7 +115,7 @@ pickBestLineupByProjectedPoints week players = do
 
 playersWithProjected :: T.Text -> Vector Player -> IO (Either String (Vector PlayerWithProjected))
 playersWithProjected week players =
-    traverse (\pl -> (fmap . fmap) (withProjected pl) (getProjectedScore (name pl) week)) players
+    traverse (\pl -> (fmap . fmap) (withProjected pl) (getProjectedScore (getNameWithOverride pl) week)) players
       & fmap sequence
 
 rosterPositions :: Vector Player -> Vector T.Text
@@ -122,3 +124,17 @@ rosterPositions players =
       & fmap rosterPosition
       & V.modify sort
       & uniq
+
+getNameWithOverride :: Player -> T.Text
+getNameWithOverride player =
+    let defaultName = paramifyName $ name player
+        playerKey = (name player, position player, team player)
+    in
+        Map.findWithDefault defaultName playerKey nameOverrides
+
+nameOverrides :: Map (T.Text, T.Text, T.Text) T.Text
+nameOverrides =
+    Map.empty
+      & Map.insert ("Alex Smith", "QB", "KC") "alex-smith-sf"
+      & Map.insert ("David Johnson", "RB", "ARI") "david-johnson-rb"
+      & Map.insert ("Michael Thomas", "WR", "NO") "michael-thomas-wr"

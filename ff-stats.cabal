@@ -21,6 +21,7 @@ executable best-pick-em
   build-depends:       base
                      , bytestring
                      , cassava
+                     , containers
                      , html-conduit
                      , lens
                      , optparse-applicative

@@ -20,23 +20,24 @@ import           Text.XML.Cursor (Cursor, ($//), (>=>), (&//), attributeIs, cont
 request :: T.Text -> T.Text -> IO (Response ByteString)
 request name week =
     let opts = defaults & param "week" .~ [week]
-        name' =
-            name
-              & T.replace " Jr." ""
-              & T.replace " Sr." ""
-              & T.replace " II" ""
-              & T.replace "." ""
-              & T.replace "'" ""
-              & T.replace " " "-"
-              & T.toLower
-              & T.unpack
-        url = "https://www.fantasypros.com/nfl/projections/" <> name' <> ".php"
+        url = "https://www.fantasypros.com/nfl/projections/" <> T.unpack name <> ".php"
     in
         getWith opts url
 
+paramifyName :: T.Text -> T.Text
+paramifyName name =
+    name
+      & T.replace " Jr." ""
+      & T.replace " Sr." ""
+      & T.replace " II" ""
+      & T.replace "." ""
+      & T.replace "'" ""
+      & T.replace " " "-"
+      & T.toLower
+
 getProjectedScore :: T.Text -> T.Text -> IO (Either String Float)
 getProjectedScore name week = do
-    resp <- request name week
+    resp <- request (paramifyName name) week
     let body = resp ^. responseBody
         outlook = listToMaybe $
                     (fromDocument $ parseLBS body)
