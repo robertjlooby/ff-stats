@@ -115,8 +115,11 @@ pickBestLineupByProjectedPoints week players = do
 
 playersWithProjected :: T.Text -> Vector Player -> IO (Either String (Vector PlayerWithProjected))
 playersWithProjected week players =
-    traverse (\pl -> (fmap . fmap) (withProjected pl) (getProjectedScore (getNameWithOverride pl) week)) players
+    traverse (\pl -> (fmap . fmap) (withProjected pl) (getProjectedScore (getNameWithOverride pl) week (shouldUsePPR pl))) players
       & fmap sequence
+
+shouldUsePPR :: Player -> Bool
+shouldUsePPR player = position player /= "QB"
 
 rosterPositions :: Vector Player -> Vector T.Text
 rosterPositions players =

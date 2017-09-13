@@ -17,9 +17,12 @@ import           Text.Read (readEither)
 import           Text.XML (toXMLNode)
 import           Text.XML.Cursor (Cursor, ($//), (>=>), (&//), attributeIs, content, element, fromDocument, node)
 
-request :: T.Text -> T.Text -> IO (Response ByteString)
-request name week =
-    let opts = defaults & param "week" .~ [week]
+request :: T.Text -> T.Text -> Bool -> IO (Response ByteString)
+request name week usePPR =
+    let opts =
+            defaults
+              & param "week" .~ [ week ]
+              & param "scoring" .~ [ if usePPR then "PPR" else "STANDARD" ]
         url = "https://www.fantasypros.com/nfl/projections/" <> T.unpack name <> ".php"
     in
         getWith opts url
@@ -35,9 +38,9 @@ paramifyName name =
       & T.replace " " "-"
       & T.toLower
 
-getProjectedScore :: T.Text -> T.Text -> IO (Either String Float)
-getProjectedScore name week = do
-    resp <- request (paramifyName name) week
+getProjectedScore :: T.Text -> T.Text -> Bool -> IO (Either String Float)
+getProjectedScore name week usePPR = do
+    resp <- request (paramifyName name) week usePPR
     let body = resp ^. responseBody
         outlook = listToMaybe $
                     (fromDocument $ parseLBS body)

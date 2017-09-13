@@ -22,7 +22,7 @@ import FetchWeekProjection
 main :: IO ()
 main = do
     params <- execParser opts
-    projectedScore <- getProjectedScore (name params) (week params)
+    projectedScore <- getProjectedScore (name params) (week params) False
     print projectedScore
   where
     opts = info (paramsParser <**> helper)
