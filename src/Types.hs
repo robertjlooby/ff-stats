@@ -2,7 +2,8 @@
 
 module Types where
 
-import           Data.Csv (FromField(..), FromNamedRecord(..), (.:))
+import qualified Data.ByteString.Char8 as BS
+import           Data.Csv (DefaultOrdered(..), FromField(..), FromNamedRecord(..), ToField(..), ToNamedRecord(..), (.:), (.=), header, namedRecord)
 import           Data.Semigroup ((<>))
 import qualified Data.Text as T
 
@@ -22,6 +23,9 @@ instance FromField Position where
         | s == "TE" = pure TE
         | s == "DST" = pure DST
         | otherwise = fail . show $ "Cannot parse Position from: " <> s
+
+instance ToField Position where
+    toField = BS.pack . show
 
 data PickEmPlayer = PickEmPlayer
     { name :: T.Text
@@ -51,3 +55,27 @@ data PickEmPlayerWithProjected = PickEmPlayerWithProjected
     , pProjectedPoints :: Float
     , pTeam :: T.Text }
     deriving (Eq, Show)
+
+instance ToNamedRecord PickEmPlayerWithProjected where
+    toNamedRecord player =
+        namedRecord [ "Name" .= pName player
+                    , "Position" .= pPosition player
+                    , "Roster_Position" .= pRosterPosition player
+                    , "GameInfo" .= pGameInfo player
+                    , "AvgPointsPerGame" .= pAvgPointsPerGame player
+                    , "teamAbbrev" .= pTeam player
+                    , "Projected" .= pProjectedPoints player
+                    ]
+
+instance DefaultOrdered PickEmPlayerWithProjected where
+    headerOrder _ = header [ "Name"
+                           , "Position"
+                           , "Roster_Position"
+                           , "GameInfo"
+                           , "AvgPointsPerGame"
+                           , "teamAbbrev"
+                           , "Projected"
+                           ]
+
+shouldUsePPR :: PickEmPlayer -> Bool
+shouldUsePPR player = position player /= QB
