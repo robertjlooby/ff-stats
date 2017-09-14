@@ -17,7 +17,9 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: v1-stack-cache-{{ checksum "stack.yaml" }}-{{ checksum "ff-stats.cabal" }}
+          keys:
+            - v1-stack-cache-{{ checksum "stack.yaml" }}-{{ checksum "ff-stats.cabal" }}
+            - v1-stack-cache-
       - run: stack setup
       - run: stack build --only-dependencies
       - run: stack build --test --no-run-tests
