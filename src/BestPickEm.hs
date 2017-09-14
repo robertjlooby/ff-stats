@@ -56,9 +56,6 @@ playersWithProjected week' players =
     traverse (\pl -> (fmap . fmap) (withProjected pl) (getProjectedScore (getNameWithOverride pl) week' (shouldUsePPR pl))) players
       & fmap sequence
 
-shouldUsePPR :: PickEmPlayer -> Bool
-shouldUsePPR player = position player /= QB
-
 rosterPositions :: Vector PickEmPlayer -> Vector T.Text
 rosterPositions players =
     players
