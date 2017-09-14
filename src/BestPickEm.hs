@@ -14,9 +14,9 @@ import FetchWeekProjection (getProjectedScore, paramifyName)
 import Types
 
 
-withProjected :: Player -> Float -> PlayerWithProjected
+withProjected :: PickEmPlayer -> Float -> PickEmPlayerWithProjected
 withProjected player projected =
-    PlayerWithProjected
+    PickEmPlayerWithProjected
         (name player)
         (position player)
         (rosterPosition player)
@@ -25,7 +25,7 @@ withProjected player projected =
         projected
         (team player)
 
-pickBestLineupByAvgPoints :: Vector Player -> Vector Player
+pickBestLineupByAvgPoints :: Vector PickEmPlayer -> Vector PickEmPlayer
 pickBestLineupByAvgPoints players =
     rosterPositions players
       & fmap maxAtRosterPosition
@@ -35,7 +35,7 @@ pickBestLineupByAvgPoints players =
           & V.filter (\player -> rp == rosterPosition player)
           & maximumBy (\p1 p2 -> compare (avgPointsPerGame p1) (avgPointsPerGame p2))
 
-pickBestLineupByProjectedPoints :: T.Text -> Vector Player -> IO (Either String (Vector PlayerWithProjected))
+pickBestLineupByProjectedPoints :: T.Text -> Vector PickEmPlayer -> IO (Either String (Vector PickEmPlayerWithProjected))
 pickBestLineupByProjectedPoints week' players = do
     players' <- playersWithProjected week' players
     case players' of
@@ -51,22 +51,22 @@ pickBestLineupByProjectedPoints week' players = do
           & V.filter (\player -> rp == pRosterPosition player)
           & maximumBy (\p1 p2 -> compare (pProjectedPoints p1) (pProjectedPoints p2))
 
-playersWithProjected :: T.Text -> Vector Player -> IO (Either String (Vector PlayerWithProjected))
+playersWithProjected :: T.Text -> Vector PickEmPlayer -> IO (Either String (Vector PickEmPlayerWithProjected))
 playersWithProjected week' players =
     traverse (\pl -> (fmap . fmap) (withProjected pl) (getProjectedScore (getNameWithOverride pl) week' (shouldUsePPR pl))) players
       & fmap sequence
 
-shouldUsePPR :: Player -> Bool
+shouldUsePPR :: PickEmPlayer -> Bool
 shouldUsePPR player = position player /= QB
 
-rosterPositions :: Vector Player -> Vector T.Text
+rosterPositions :: Vector PickEmPlayer -> Vector T.Text
 rosterPositions players =
     players
       & fmap rosterPosition
       & V.modify sort
       & uniq
 
-getNameWithOverride :: Player -> T.Text
+getNameWithOverride :: PickEmPlayer -> T.Text
 getNameWithOverride player =
     let defaultName = paramifyName $ name player
         playerKey = (name player, position player, team player)
