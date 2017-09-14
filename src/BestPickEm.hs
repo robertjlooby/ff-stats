@@ -57,7 +57,7 @@ playersWithProjected week' players =
       & fmap sequence
 
 shouldUsePPR :: Player -> Bool
-shouldUsePPR player = position player /= "QB"
+shouldUsePPR player = position player /= QB
 
 rosterPositions :: Vector Player -> Vector T.Text
 rosterPositions players =
@@ -73,9 +73,9 @@ getNameWithOverride player =
     in
         Map.findWithDefault defaultName playerKey nameOverrides
 
-nameOverrides :: Map (T.Text, T.Text, T.Text) T.Text
+nameOverrides :: Map (T.Text, Position, T.Text) T.Text
 nameOverrides =
     Map.empty
-      & Map.insert ("Alex Smith", "QB", "KC") "alex-smith-sf"
-      & Map.insert ("David Johnson", "RB", "ARI") "david-johnson-rb"
-      & Map.insert ("Michael Thomas", "WR", "NO") "michael-thomas-wr"
+      & Map.insert ("Alex Smith", QB, "KC") "alex-smith-sf"
+      & Map.insert ("David Johnson", RB, "ARI") "david-johnson-rb"
+      & Map.insert ("Michael Thomas", WR, "NO") "michael-thomas-wr"
