@@ -23,7 +23,7 @@ instance FromField Position where
         | s == "DST" = pure DST
         | otherwise = fail . show $ "Cannot parse Position from: " <> s
 
-data Player = Player
+data PickEmPlayer = PickEmPlayer
     { name :: T.Text
     , position :: Position
     , rosterPosition :: T.Text
@@ -32,9 +32,9 @@ data Player = Player
     , team :: T.Text }
     deriving (Eq, Show)
 
-instance FromNamedRecord Player where
+instance FromNamedRecord PickEmPlayer where
     parseNamedRecord m =
-        Player
+        PickEmPlayer
           <$> m .: "Name"
           <*> m .: "Position"
           <*> m .: "Roster_Position"
@@ -42,7 +42,7 @@ instance FromNamedRecord Player where
           <*> m .: "AvgPointsPerGame"
           <*> m .: "teamAbbrev"
 
-data PlayerWithProjected = PlayerWithProjected
+data PickEmPlayerWithProjected = PickEmPlayerWithProjected
     { pName :: T.Text
     , pPosition :: Position
     , pRosterPosition :: T.Text
