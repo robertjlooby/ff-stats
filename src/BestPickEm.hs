@@ -74,13 +74,13 @@ main = do
     case decodeByName csvData of
       Right (_, players) -> do
           putStrLn "Best lineup by avg. points:"
-          traverse print (pickBestLineupByAvgPoints players)
+          _ <- traverse print (pickBestLineupByAvgPoints players)
           putStrLn "Best lineup by projected points:"
           byPoints <- pickBestLineupByProjectedPoints (week params) players
           case byPoints of
             Left err -> putStrLn err
             Right pls -> do
-                traverse print pls
+                _ <- traverse print pls
                 return ()
       left -> print left
   where
@@ -98,8 +98,8 @@ pickBestLineupByAvgPoints players =
           & maximumBy (\p1 p2 -> compare (avgPointsPerGame p1) (avgPointsPerGame p2))
 
 pickBestLineupByProjectedPoints :: T.Text -> Vector Player -> IO (Either String (Vector PlayerWithProjected))
-pickBestLineupByProjectedPoints week players = do
-    players' <- playersWithProjected week players
+pickBestLineupByProjectedPoints week' players = do
+    players' <- playersWithProjected week' players
     case players' of
       Left err -> return $ Left err
       Right playersWithProjected' ->
@@ -114,8 +114,8 @@ pickBestLineupByProjectedPoints week players = do
           & maximumBy (\p1 p2 -> compare (pProjectedPoints p1) (pProjectedPoints p2))
 
 playersWithProjected :: T.Text -> Vector Player -> IO (Either String (Vector PlayerWithProjected))
-playersWithProjected week players =
-    traverse (\pl -> (fmap . fmap) (withProjected pl) (getProjectedScore (getNameWithOverride pl) week (shouldUsePPR pl))) players
+playersWithProjected week' players =
+    traverse (\pl -> (fmap . fmap) (withProjected pl) (getProjectedScore (getNameWithOverride pl) week' (shouldUsePPR pl))) players
       & fmap sequence
 
 shouldUsePPR :: Player -> Bool

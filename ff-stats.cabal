@@ -16,7 +16,7 @@ cabal-version:       >=1.10
 executable best-pick-em
   hs-source-dirs:      src
   main-is:             BestPickEm.hs
-  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
   other-modules:       FetchWeekProjection
   build-depends:       base
                      , bytestring
@@ -38,7 +38,7 @@ executable fetch-week-projection
   hs-source-dirs:      app
                      , src
   main-is:             FetchWeekProjectionMain.hs
-  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
   other-modules:       FetchWeekProjection
   build-depends:       base
                      , bytestring
@@ -57,7 +57,7 @@ test-suite ff-stats-test
   hs-source-dirs:      test
   main-is:             Spec.hs
   build-depends:       base
-  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
   default-language:    Haskell2010
 
 source-repository head
