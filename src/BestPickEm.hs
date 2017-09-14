@@ -3,7 +3,7 @@
 module Main where
 
 import qualified Data.ByteString.Lazy as BL
-import           Data.Csv (FromNamedRecord(..), (.:), decodeByName)
+import           Data.Csv (decodeByName)
 import           Data.Function ((&))
 import qualified Data.Map.Strict as Map
 import           Data.Map.Strict (Map)
@@ -16,35 +16,8 @@ import           Options.Applicative (Parser, (<**>), execParser, fullDesc, help
 import           Options.Applicative.Text (text)
 
 import FetchWeekProjection (getProjectedScore, paramifyName)
+import Types
 
-data Player = Player
-    { name :: T.Text
-    , position :: T.Text
-    , rosterPosition :: T.Text
-    , gameInfo :: T.Text
-    , avgPointsPerGame :: Float
-    , team :: T.Text }
-    deriving (Eq, Show)
-
-instance FromNamedRecord Player where
-    parseNamedRecord m =
-        Player
-          <$> m .: "Name"
-          <*> m .: "Position"
-          <*> m .: "Roster_Position"
-          <*> m .: "GameInfo"
-          <*> m .: "AvgPointsPerGame"
-          <*> m .: "teamAbbrev"
-
-data PlayerWithProjected = PlayerWithProjected
-    { pName :: T.Text
-    , pPosition :: T.Text
-    , pRosterPosition :: T.Text
-    , pGameInfo :: T.Text
-    , pAvgPointsPerGame :: Float
-    , pProjectedPoints :: Float
-    , pTeam :: T.Text }
-    deriving (Eq, Show)
 
 withProjected :: Player -> Float -> PlayerWithProjected
 withProjected player projected =

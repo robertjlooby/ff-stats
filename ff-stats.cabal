@@ -18,6 +18,7 @@ executable best-pick-em
   main-is:             BestPickEm.hs
   ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
   other-modules:       FetchWeekProjection
+                     , Types
   build-depends:       base
                      , bytestring
                      , cassava
