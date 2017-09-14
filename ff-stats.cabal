@@ -14,10 +14,12 @@ extra-source-files:  README.md
 cabal-version:       >=1.10
 
 executable best-pick-em
-  hs-source-dirs:      src
-  main-is:             BestPickEm.hs
+  hs-source-dirs:      app
+                     , src
+  main-is:             BestPickEmMain.hs
   ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
-  other-modules:       FetchWeekProjection
+  other-modules:       BestPickEm
+                     , FetchWeekProjection
                      , Types
   build-depends:       base
                      , bytestring
