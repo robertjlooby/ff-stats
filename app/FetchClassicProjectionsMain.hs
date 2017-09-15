@@ -9,6 +9,7 @@ import qualified Data.Text as T
 import           Data.Vector (toList)
 import           Options.Applicative (Parser, (<**>), execParser, fullDesc, helper, info, long, option, progDesc, str)
 import           Options.Applicative.Text (text)
+import           System.Remote.Monitoring
 
 import BestClassic
 
@@ -26,6 +27,7 @@ paramsParser = Params
 
 main :: IO ()
 main = do
+    _ <- forkServer "localhost" 8000
     params <- execParser opts
     csvData <- BL.readFile (file params)
     case decodeByName csvData of
