@@ -58,6 +58,11 @@ getProjectedScore name week usePPR = do
                   & T.replace " pts" ""
                   & T.unpack
                   & readEither
+                  & errWithPlayer
                   & return
                 return score
       Nothing -> return . Left $ "Player outlook div not found for: " <> show name <> " week " <> show week
+  where
+      errWithPlayer :: Either String Float -> Either String Float
+      errWithPlayer (Left err) = Left $ T.unpack name <> "  " <> err
+      errWithPlayer right = right
