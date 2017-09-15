@@ -37,6 +37,30 @@ executable best-pick-em
                      , xml-types
   default-language:    Haskell2010
 
+executable fetch-classic-projections
+  hs-source-dirs:      app
+                     , src
+  main-is:             FetchClassicProjectionsMain.hs
+  ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
+  other-modules:       BestClassic
+                     , FetchWeekProjection
+                     , Types
+  build-depends:       base
+                     , bytestring
+                     , cassava
+                     , containers
+                     , html-conduit
+                     , lens
+                     , optparse-applicative
+                     , optparse-text
+                     , text
+                     , vector
+                     , vector-algorithms
+                     , wreq
+                     , xml-conduit
+                     , xml-types
+  default-language:    Haskell2010
+
 executable fetch-pick-em-projections
   hs-source-dirs:      app
                      , src
