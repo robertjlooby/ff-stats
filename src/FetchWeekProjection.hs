@@ -38,7 +38,7 @@ paramifyName name =
 
 getProjectedScore :: T.Text -> T.Text -> Bool -> IO (Either String Float)
 getProjectedScore name week usePPR = do
-    resp <- request (paramifyName name) week usePPR
+    resp <- request name week usePPR
     let body = resp ^. responseBody
         outlook = listToMaybe $
                     (fromDocument $ parseLBS body)
