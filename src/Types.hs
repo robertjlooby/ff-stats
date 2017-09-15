@@ -77,5 +77,58 @@ instance DefaultOrdered PickEmPlayerWithProjected where
                            , "Projected"
                            ]
 
+data ClassicPlayer = ClassicPlayer
+    { cName :: T.Text
+    , cPosition :: Position
+    , cSalary :: Int
+    , cGameInfo :: T.Text
+    , cAvgPointsPerGame :: Float
+    , cTeam :: T.Text }
+    deriving (Eq, Show)
+
+instance FromNamedRecord ClassicPlayer where
+    parseNamedRecord m =
+        ClassicPlayer
+          <$> m .: "Name"
+          <*> m .: "Position"
+          <*> m .: "Salary"
+          <*> m .: "GameInfo"
+          <*> m .: "AvgPointsPerGame"
+          <*> m .: "teamAbbrev"
+
+data ClassicPlayerWithProjected = ClassicPlayerWithProjected
+    { cpName :: T.Text
+    , cpPosition :: Position
+    , cpSalary :: Int
+    , cpGameInfo :: T.Text
+    , cpAvgPointsPerGame :: Float
+    , cpProjectedPoints :: Float
+    , cpTeam :: T.Text }
+    deriving (Eq, Show)
+
+instance ToNamedRecord ClassicPlayerWithProjected where
+    toNamedRecord player =
+        namedRecord [ "Name" .= cpName player
+                    , "Position" .= cpPosition player
+                    , "Salary" .= cpSalary player
+                    , "GameInfo" .= cpGameInfo player
+                    , "AvgPointsPerGame" .= cpAvgPointsPerGame player
+                    , "teamAbbrev" .= cpTeam player
+                    , "Projected" .= cpProjectedPoints player
+                    ]
+
+instance DefaultOrdered ClassicPlayerWithProjected where
+    headerOrder _ = header [ "Name"
+                           , "Position"
+                           , "Salary"
+                           , "GameInfo"
+                           , "AvgPointsPerGame"
+                           , "teamAbbrev"
+                           , "Projected"
+                           ]
+
 shouldUsePPR :: PickEmPlayer -> Bool
 shouldUsePPR player = position player /= QB
+
+shouldUsePPR' :: ClassicPlayer -> Bool
+shouldUsePPR' player = cPosition player /= QB
