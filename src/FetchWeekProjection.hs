@@ -1,3 +1,4 @@
+{-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module FetchWeekProjection where
@@ -47,15 +48,16 @@ getProjectedScore name week usePPR = do
       Just cursor ->
           case cursor $// (element "span" >=> attributeIs "class" "pull-right") of
             [] -> return $ Left $ "Player projected score not found for: " <> show name <> " week " <> show week
-            cursors ->
-                cursors
-                & last
-                & node
-                & toXMLNode
-                & nodeText
-                & T.concat
-                & T.replace " pts" ""
-                & T.unpack
-                & readEither
-                & return
+            cursors -> do
+                !score <- cursors
+                  & last
+                  & node
+                  & toXMLNode
+                  & nodeText
+                  & T.concat
+                  & T.replace " pts" ""
+                  & T.unpack
+                  & readEither
+                  & return
+                return score
       Nothing -> return . Left $ "Player outlook div not found for: " <> show name <> " week " <> show week
