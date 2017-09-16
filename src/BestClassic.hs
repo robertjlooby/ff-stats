@@ -2,7 +2,6 @@
 
 module BestClassic where
 
-import           Data.Either (isRight)
 import           Data.Function ((&))
 import qualified Data.Map.Strict as Map
 import           Data.Map.Strict (Map)
@@ -29,7 +28,10 @@ withProjected player projected =
 getPlayersWithProjected :: T.Text -> Vector ClassicPlayer -> IO (Either String (Vector ClassicPlayerWithProjected))
 getPlayersWithProjected week' players = do
     playersWithProjected <- traverse (playerWithProjected week') players
-    return . sequence $ V.filter isRight playersWithProjected
+    return . sequence $ V.filter includePlayer playersWithProjected
+  where
+      includePlayer (Left _) = False
+      includePlayer (Right player) = cpProjectedPoints player < 1
 
 
 playerWithProjected :: T.Text -> ClassicPlayer -> IO (Either String ClassicPlayerWithProjected)
