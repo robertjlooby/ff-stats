@@ -25,8 +25,15 @@ withProjected player projected =
 
 playersWithProjected :: T.Text -> Vector ClassicPlayer -> IO (Either String (Vector ClassicPlayerWithProjected))
 playersWithProjected week' players =
-    traverse (\pl -> (fmap . fmap) (withProjected pl) (getProjectedScore (getNameWithOverride pl) week' (shouldUsePPR' pl))) players
+    traverse (playerWithProjected week') players
       & fmap sequence
+
+playerWithProjected :: T.Text -> ClassicPlayer -> IO (Either String ClassicPlayerWithProjected)
+playerWithProjected week' player = do
+    projected <- getProjectedScore (getNameWithOverride player) week' (shouldUsePPR' player)
+    case projected of
+      Right score -> return . Right $ withProjected player score
+      Left err -> return $ Left err
 
 getNameWithOverride :: ClassicPlayer -> T.Text
 getNameWithOverride player =
