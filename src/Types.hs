@@ -131,4 +131,6 @@ shouldUsePPR :: PickEmPlayer -> Bool
 shouldUsePPR player = position player /= QB
 
 shouldUsePPR' :: ClassicPlayer -> Bool
-shouldUsePPR' player = cPosition player /= QB
+shouldUsePPR' player = pos /= QB && pos /= DST
+  where
+      pos = cPosition player
