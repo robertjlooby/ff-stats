@@ -2,11 +2,14 @@
 
 module BestClassic where
 
+import           Data.Either (isRight)
 import           Data.Function ((&))
 import qualified Data.Map.Strict as Map
 import           Data.Map.Strict (Map)
+import           Data.Semigroup ((<>))
 import qualified Data.Text as T
 import           Data.Vector (Vector)
+import qualified Data.Vector as V
 
 import FetchWeekProjection (getProjectedScore, paramifyName)
 import Types
@@ -23,17 +26,27 @@ withProjected player projected =
         projected
         (cTeam player)
 
-playersWithProjected :: T.Text -> Vector ClassicPlayer -> IO (Either String (Vector ClassicPlayerWithProjected))
-playersWithProjected week' players =
-    traverse (playerWithProjected week') players
-      & fmap sequence
+getPlayersWithProjected :: T.Text -> Vector ClassicPlayer -> IO (Either String (Vector ClassicPlayerWithProjected))
+getPlayersWithProjected week' players = do
+    playersWithProjected <- traverse (playerWithProjected week') players
+    return . sequence $ V.filter isRight playersWithProjected
+
 
 playerWithProjected :: T.Text -> ClassicPlayer -> IO (Either String ClassicPlayerWithProjected)
 playerWithProjected week' player = do
     projected <- getProjectedScore (getNameWithOverride player) week' (shouldUsePPR' player)
     case projected of
       Right score -> return . Right $ withProjected player score
-      Left err -> return $ Left err
+      Left err -> do
+          let msg = T.unpack (cTeam player)
+                      <> " "
+                      <> show (cPosition player)
+                      <> " "
+                      <> T.unpack (cName player)
+                      <> " -- "
+                      <> err
+          _ <- print msg
+          return $ Left msg
 
 getNameWithOverride :: ClassicPlayer -> T.Text
 getNameWithOverride player =

@@ -32,7 +32,7 @@ main = do
     csvData <- BL.readFile (file params)
     case decodeByName csvData of
       Right (_, players) -> do
-          players' <- playersWithProjected (week params) players
+          players' <- getPlayersWithProjected (week params) players
           case players' of
             Right ps -> BL.writeFile (out params) $ encodeDefaultOrderedByName (toList ps)
             Left err -> print err
