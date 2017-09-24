@@ -31,7 +31,7 @@ getPlayersWithProjected week' players = do
     return . sequence $ V.filter includePlayer playersWithProjected
   where
       includePlayer (Left _) = False
-      includePlayer (Right player) = cpProjectedPoints player < 1
+      includePlayer (Right player) = cpProjectedPoints player >= 1
 
 
 playerWithProjected :: T.Text -> ClassicPlayer -> IO (Either String ClassicPlayerWithProjected)
