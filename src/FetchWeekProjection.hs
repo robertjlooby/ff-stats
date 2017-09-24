@@ -16,6 +16,8 @@ import           Text.Read (readEither)
 import           Text.XML (toXMLNode)
 import           Text.XML.Cursor (($//), (>=>), attributeIs, element, fromDocument, node)
 
+import           Types (PlayerName(..))
+
 request :: T.Text -> T.Text -> Bool -> IO (Response ByteString)
 request name week usePPR =
     let opts =
@@ -26,8 +28,8 @@ request name week usePPR =
     in
         getWith opts url
 
-paramifyName :: T.Text -> T.Text
-paramifyName name =
+paramifyName :: PlayerName -> T.Text
+paramifyName (PlayerName name) =
     name
       & T.replace " Jr." ""
       & T.replace " Sr." ""

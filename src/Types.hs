@@ -1,10 +1,12 @@
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE OverloadedStrings          #-}
 
 module Types where
 
 import qualified Data.ByteString.Char8 as BS
 import           Data.Csv (DefaultOrdered(..), FromField(..), FromNamedRecord(..), ToField(..), ToNamedRecord(..), (.:), (.=), header, namedRecord)
 import           Data.Semigroup ((<>))
+import           Data.String (IsString)
 import qualified Data.Text as T
 
 data Position =
@@ -27,8 +29,12 @@ instance FromField Position where
 instance ToField Position where
     toField = BS.pack . show
 
+newtype PlayerName =
+    PlayerName { getPlayerName :: T.Text }
+    deriving (Eq, FromField, IsString, Ord, Show, ToField)
+
 data PickEmPlayer = PickEmPlayer
-    { name :: T.Text
+    { name :: PlayerName
     , position :: Position
     , rosterPosition :: T.Text
     , gameInfo :: T.Text
@@ -47,7 +53,7 @@ instance FromNamedRecord PickEmPlayer where
           <*> m .: "teamAbbrev"
 
 data PickEmPlayerWithProjected = PickEmPlayerWithProjected
-    { pName :: T.Text
+    { pName :: PlayerName
     , pPosition :: Position
     , pRosterPosition :: T.Text
     , pGameInfo :: T.Text
@@ -78,7 +84,7 @@ instance DefaultOrdered PickEmPlayerWithProjected where
                            ]
 
 data ClassicPlayer = ClassicPlayer
-    { cName :: T.Text
+    { cName :: PlayerName
     , cPosition :: Position
     , cSalary :: Int
     , cGameInfo :: T.Text
@@ -97,7 +103,7 @@ instance FromNamedRecord ClassicPlayer where
           <*> m .: "teamAbbrev"
 
 data ClassicPlayerWithProjected = ClassicPlayerWithProjected
-    { cpName :: T.Text
+    { cpName :: PlayerName
     , cpPosition :: Position
     , cpSalary :: Int
     , cpGameInfo :: T.Text

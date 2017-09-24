@@ -95,8 +95,10 @@ executable fetch-week-projection
   main-is:             FetchWeekProjectionMain.hs
   ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
   other-modules:       FetchWeekProjection
+                     , Types
   build-depends:       base
                      , bytestring
+                     , cassava
                      , html-conduit
                      , lens
                      , optparse-applicative
