@@ -33,13 +33,17 @@ newtype PlayerName =
     PlayerName { getPlayerName :: T.Text }
     deriving (Eq, FromField, IsString, Ord, Show, ToField)
 
+newtype TeamName =
+    TeamName { getTeamName :: T.Text }
+    deriving (Eq, FromField, IsString, Ord, Show, ToField)
+
 data PickEmPlayer = PickEmPlayer
     { name :: PlayerName
     , position :: Position
     , rosterPosition :: T.Text
     , gameInfo :: T.Text
     , avgPointsPerGame :: Float
-    , team :: T.Text }
+    , team :: TeamName }
     deriving (Eq, Show)
 
 instance FromNamedRecord PickEmPlayer where
@@ -59,7 +63,7 @@ data PickEmPlayerWithProjected = PickEmPlayerWithProjected
     , pGameInfo :: T.Text
     , pAvgPointsPerGame :: Float
     , pProjectedPoints :: Float
-    , pTeam :: T.Text }
+    , pTeam :: TeamName }
     deriving (Eq, Show)
 
 instance ToNamedRecord PickEmPlayerWithProjected where
@@ -89,7 +93,7 @@ data ClassicPlayer = ClassicPlayer
     , cSalary :: Int
     , cGameInfo :: T.Text
     , cAvgPointsPerGame :: Float
-    , cTeam :: T.Text }
+    , cTeam :: TeamName }
     deriving (Eq, Show)
 
 instance FromNamedRecord ClassicPlayer where
@@ -109,7 +113,7 @@ data ClassicPlayerWithProjected = ClassicPlayerWithProjected
     , cpGameInfo :: T.Text
     , cpAvgPointsPerGame :: Float
     , cpProjectedPoints :: Float
-    , cpTeam :: T.Text }
+    , cpTeam :: TeamName }
     deriving (Eq, Show)
 
 instance ToNamedRecord ClassicPlayerWithProjected where

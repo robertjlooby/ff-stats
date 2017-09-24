@@ -39,7 +39,7 @@ playerWithProjected week' player = do
     case projected of
       Right score -> return . Right $ withProjected player score
       Left err -> do
-          let msg = T.unpack (cTeam player)
+          let msg = (T.unpack . getTeamName . cTeam $ player)
                       <> " "
                       <> show (cPosition player)
                       <> " "
