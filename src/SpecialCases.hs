@@ -9,7 +9,7 @@ import qualified Data.Text as T
 
 import Types
 
-nameOverrides :: Map (T.Text, Position, T.Text) T.Text
+nameOverrides :: Map (PlayerName, Position, T.Text) T.Text
 nameOverrides =
     Map.empty
       & Map.insert ("Adrian Peterson", RB, "NO") "adrian-peterson-min"

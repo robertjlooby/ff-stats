@@ -43,7 +43,7 @@ playerWithProjected week' player = do
                       <> " "
                       <> show (cPosition player)
                       <> " "
-                      <> T.unpack (cName player)
+                      <> (T.unpack . getPlayerName . cName $ player)
                       <> " -- "
                       <> err
           _ <- print msg
