@@ -4,13 +4,13 @@ module BestPickEm where
 
 import           Data.Function ((&))
 import qualified Data.Map.Strict as Map
-import           Data.Map.Strict (Map)
 import qualified Data.Text as T
 import qualified Data.Vector as V
 import           Data.Vector (Vector, maximumBy, uniq)
 import           Data.Vector.Algorithms.Merge (sort)
 
 import FetchWeekProjection (getProjectedScore, paramifyName)
+import SpecialCases (nameOverrides)
 import Types
 
 
@@ -69,10 +69,3 @@ getNameWithOverride player =
         playerKey = (name player, position player, team player)
     in
         Map.findWithDefault defaultName playerKey nameOverrides
-
-nameOverrides :: Map (T.Text, Position, T.Text) T.Text
-nameOverrides =
-    Map.empty
-      & Map.insert ("Alex Smith", QB, "KC") "alex-smith-sf"
-      & Map.insert ("David Johnson", RB, "ARI") "david-johnson-rb"
-      & Map.insert ("Michael Thomas", WR, "NO") "michael-thomas-wr"

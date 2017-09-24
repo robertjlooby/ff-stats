@@ -20,6 +20,7 @@ executable best-pick-em
   ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
   other-modules:       BestPickEm
                      , FetchWeekProjection
+                     , SpecialCases
                      , Types
   build-depends:       base
                      , bytestring
@@ -44,6 +45,7 @@ executable fetch-classic-projections
   ghc-options:         -Wall -threaded -rtsopts "-with-rtsopts=-N -T"
   other-modules:       BestClassic
                      , FetchWeekProjection
+                     , SpecialCases
                      , Types
   build-depends:       base
                      , bytestring
@@ -69,6 +71,7 @@ executable fetch-pick-em-projections
   ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
   other-modules:       BestPickEm
                      , FetchWeekProjection
+                     , SpecialCases
                      , Types
   build-depends:       base
                      , bytestring
