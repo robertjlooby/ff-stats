@@ -23,6 +23,7 @@ nameOverrides =
       & Map.insert ("Rob Kelley", RB, "WAS") "robert-kelley"
       & Map.insert ("Ryan Grant", WR, "WAS") "ryan-grant-wr"
       & Map.insert ("Ted Ginn Jr.", WR, "NO") "ted-ginn-jr"
+      & Map.insert ("Will Fuller V", WR, "HOU") "will-fuller"
       & Map.insert ("Zach Miller", TE, "CHI") "zach-miller-chi"
       -- Defenses
       & Map.insert ("49ers ", DST, "SF") "san-francisco-defense"
