@@ -28,6 +28,8 @@ executable best-pick-em
                      , containers
                      , html-conduit
                      , lens
+                     , QuickCheck
+                     , quickcheck-instances
                      , optparse-applicative
                      , optparse-text
                      , text
@@ -54,6 +56,8 @@ executable fetch-classic-projections
                      , ekg
                      , html-conduit
                      , lens
+                     , QuickCheck
+                     , quickcheck-instances
                      , optparse-applicative
                      , optparse-text
                      , text
@@ -79,6 +83,8 @@ executable fetch-pick-em-projections
                      , containers
                      , html-conduit
                      , lens
+                     , QuickCheck
+                     , quickcheck-instances
                      , optparse-applicative
                      , optparse-text
                      , text
@@ -101,6 +107,8 @@ executable fetch-week-projection
                      , cassava
                      , html-conduit
                      , lens
+                     , QuickCheck
+                     , quickcheck-instances
                      , optparse-applicative
                      , optparse-text
                      , text
@@ -116,12 +124,16 @@ test-suite ff-stats-test
   main-is:             Spec.hs
   other-modules:       Fitness
                      , FitnessSpec
+                     , GenerateTeam
+                     , GenerateTeamSpec
                      , Teams
                      , Types
   build-depends:       base
                      , bytestring
                      , cassava
                      , hspec
+                     , QuickCheck
+                     , quickcheck-instances
                      , text
                      , vector
   ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N

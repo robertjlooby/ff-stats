@@ -8,6 +8,9 @@ import           Data.Csv (DefaultOrdered(..), FromField(..), FromNamedRecord(..
 import           Data.Semigroup ((<>))
 import           Data.String (IsString)
 import qualified Data.Text as T
+import           Test.QuickCheck.Arbitrary (Arbitrary(..))
+import           Test.QuickCheck.Gen (oneof)
+import           Test.QuickCheck.Instances ()
 
 data Position =
       QB
@@ -16,6 +19,15 @@ data Position =
     | TE
     | DST
     deriving (Eq, Ord, Show)
+
+instance Arbitrary Position where
+    arbitrary = oneof
+        [ return QB
+        , return RB
+        , return WR
+        , return TE
+        , return DST
+        ]
 
 instance FromField Position where
     parseField s
@@ -33,9 +45,15 @@ newtype PlayerName =
     PlayerName { getPlayerName :: T.Text }
     deriving (Eq, FromField, IsString, Ord, Show, ToField)
 
+instance Arbitrary PlayerName where
+    arbitrary = PlayerName <$> arbitrary
+
 newtype TeamName =
     TeamName { getTeamName :: T.Text }
     deriving (Eq, FromField, IsString, Ord, Show, ToField)
+
+instance Arbitrary TeamName where
+    arbitrary = TeamName <$> arbitrary
 
 data PickEmPlayer = PickEmPlayer
     { name :: PlayerName
@@ -115,6 +133,16 @@ data ClassicPlayerWithProjected = ClassicPlayerWithProjected
     , cpProjectedPoints :: Float
     , cpTeam :: TeamName }
     deriving (Eq, Show)
+
+instance Arbitrary ClassicPlayerWithProjected where
+    arbitrary = ClassicPlayerWithProjected
+        <$> arbitrary
+        <*> arbitrary
+        <*> arbitrary
+        <*> arbitrary
+        <*> arbitrary
+        <*> arbitrary
+        <*> arbitrary
 
 instance ToNamedRecord ClassicPlayerWithProjected where
     toNamedRecord player =
