@@ -112,8 +112,18 @@ executable fetch-week-projection
 test-suite ff-stats-test
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
+                     , src
   main-is:             Spec.hs
+  other-modules:       Fitness
+                     , FitnessSpec
+                     , Teams
+                     , Types
   build-depends:       base
+                     , bytestring
+                     , cassava
+                     , hspec
+                     , text
+                     , vector
   ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
   default-language:    Haskell2010
 

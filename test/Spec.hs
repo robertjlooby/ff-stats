@@ -1,2 +1,9 @@
+module Main where
+
+import           Test.Hspec (hspec)
+
+import           FitnessSpec (spec)
+
 main :: IO ()
-main = putStrLn "Test suite not yet implemented"
+main = hspec $ do
+    FitnessSpec.spec
