@@ -23,7 +23,7 @@ withProjected player projected =
         (gameInfo player)
         (avgPointsPerGame player)
         projected
-        (team player)
+        (plTeam player)
 
 pickBestLineupByAvgPoints :: Vector PickEmPlayer -> Vector PickEmPlayer
 pickBestLineupByAvgPoints players =
@@ -66,6 +66,6 @@ rosterPositions players =
 getNameWithOverride :: PickEmPlayer -> T.Text
 getNameWithOverride player =
     let defaultName = paramifyName $ name player
-        playerKey = (name player, position player, team player)
+        playerKey = (name player, position player, plTeam player)
     in
         Map.findWithDefault defaultName playerKey nameOverrides

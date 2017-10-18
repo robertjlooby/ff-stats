@@ -1,7 +1,10 @@
 module Teams where
 
-import Data.Vector
-import Types
+import           Data.List (nub)
+import           Test.QuickCheck.Arbitrary (Arbitrary(..), vector)
+import           Test.QuickCheck.Gen (suchThat)
+
+import           Types
 
 data ClassicTeam = ClassicTeam
     { _qb :: ClassicPlayerWithProjected
@@ -19,10 +22,28 @@ allPlayers :: ClassicTeam -> [ClassicPlayerWithProjected]
 allPlayers team = [_qb, _rb1, _rb2, _wr1, _wr2, _wr3, _te, _flex, _dst] <*> pure team
 
 data PlayerPool = PlayerPool
-    { _qbs :: Vector ClassicPlayerWithProjected
-    , _rbs :: Vector ClassicPlayerWithProjected
-    , _wrs :: Vector ClassicPlayerWithProjected
-    , _tes :: Vector ClassicPlayerWithProjected
-    , _flexes :: Vector ClassicPlayerWithProjected
-    , _dsts :: Vector ClassicPlayerWithProjected
+    { _qbs :: [ClassicPlayerWithProjected]
+    , _rbs :: [ClassicPlayerWithProjected]
+    , _wrs :: [ClassicPlayerWithProjected]
+    , _tes :: [ClassicPlayerWithProjected]
+    , _dsts :: [ClassicPlayerWithProjected]
     } deriving (Eq, Show)
+
+instance Arbitrary PlayerPool where
+    arbitrary = do
+        qbs <- mkPlayers QB
+        rbs <- mkPlayers RB
+        wrs <- mkPlayers WR
+        tes <- mkPlayers TE
+        dsts <- mkPlayers DST
+        return $ PlayerPool
+            qbs
+            rbs
+            wrs
+            tes
+            dsts
+      where
+        setPosition pos player = player { cpPosition = pos }
+        mkPlayers pos = do
+            players <- vector 5 `suchThat` (\l -> nub l == l)
+            return $ (setPosition pos) <$> players

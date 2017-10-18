@@ -61,7 +61,7 @@ data PickEmPlayer = PickEmPlayer
     , rosterPosition :: T.Text
     , gameInfo :: T.Text
     , avgPointsPerGame :: Float
-    , team :: TeamName }
+    , plTeam :: TeamName }
     deriving (Eq, Show)
 
 instance FromNamedRecord PickEmPlayer where
@@ -143,6 +143,17 @@ instance Arbitrary ClassicPlayerWithProjected where
         <*> arbitrary
         <*> arbitrary
         <*> arbitrary
+
+instance FromNamedRecord ClassicPlayerWithProjected where
+    parseNamedRecord m =
+        ClassicPlayerWithProjected
+          <$> m .: "Name"
+          <*> m .: "Position"
+          <*> m .: "Salary"
+          <*> m .: "GameInfo"
+          <*> m .: "AvgPointsPerGame"
+          <*> m .: "Projected"
+          <*> m .: "teamAbbrev"
 
 instance ToNamedRecord ClassicPlayerWithProjected where
     toNamedRecord player =
