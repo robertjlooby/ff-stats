@@ -13,6 +13,29 @@ build-type:          Simple
 extra-source-files:  README.md
 cabal-version:       >=1.10
 
+executable best-classic
+  hs-source-dirs:      app
+                     , src
+  main-is:             BestClassicMain.hs
+  ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
+  other-modules:       BestClassic
+                     , Fitness
+                     , GenerateTeam
+                     , Teams
+                     , Types
+  build-depends:       base
+                     , bytestring
+                     , cassava
+                     , containers
+                     , QuickCheck
+                     , quickcheck-instances
+                     , optparse-applicative
+                     , optparse-text
+                     , random
+                     , text
+                     , vector
+  default-language:    Haskell2010
+
 executable best-pick-em
   hs-source-dirs:      app
                      , src
@@ -45,7 +68,7 @@ executable fetch-classic-projections
                      , src
   main-is:             FetchClassicProjectionsMain.hs
   ghc-options:         -Wall -threaded -rtsopts "-with-rtsopts=-N -T"
-  other-modules:       BestClassic
+  other-modules:       FetchClassic
                      , FetchWeekProjection
                      , SpecialCases
                      , Types
@@ -134,6 +157,7 @@ test-suite ff-stats-test
                      , hspec
                      , QuickCheck
                      , quickcheck-instances
+                     , random
                      , text
                      , vector
   ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N

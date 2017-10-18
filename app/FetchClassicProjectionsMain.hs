@@ -11,7 +11,7 @@ import           Options.Applicative (Parser, (<**>), execParser, fullDesc, help
 import           Options.Applicative.Text (text)
 import           System.Remote.Monitoring
 
-import BestClassic
+import FetchClassic
 
 data Params = Params
     { file :: String
