@@ -11,10 +11,11 @@ import           GenerateTeam
 import           Teams
 import           Types
 
-pickBestLineup :: Int -> Vector ClassicPlayerWithProjected -> IO ClassicTeam
-pickBestLineup poolSize players = do
+pickBestLineup :: Int -> Int -> Vector ClassicPlayerWithProjected -> IO ClassicTeam
+pickBestLineup salaryCap poolSize players = do
     teams <- replicateM poolSize (generateTeam pool)
-    let best = maximumBy (\t1 t2 -> compare (fitness t1) (fitness t2)) teams
+    let best = maximumBy (\t1 t2 -> compare (rate t1) (rate t2)) teams
     return best
   where
     pool = generatePlayerPool players
+    rate = fitness salaryCap
