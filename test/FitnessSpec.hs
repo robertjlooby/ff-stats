@@ -14,4 +14,10 @@ spec = describe "Fitness" $ do
         let p = ClassicPlayerWithProjected "name" QB 100 "" 0 10 (TeamName "chi")
             team = ClassicTeam p p p p p p p p p
         in
-            fitness team `shouldBe` 90
+            fitness 1000 team `shouldBe` 90
+
+    it "is 0 if the team is over the salary cap" $
+        let p = ClassicPlayerWithProjected "name" QB 100 "" 0 10 (TeamName "chi")
+            team = ClassicTeam p p p p p p p p p
+        in
+            fitness 10 team `shouldBe` 0
