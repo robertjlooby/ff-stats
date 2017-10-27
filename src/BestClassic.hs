@@ -31,8 +31,10 @@ iterateIO times iterator state
 
 nextGeneration :: (ClassicTeam -> Float) -> [ClassicTeam] -> IO [ClassicTeam]
 nextGeneration fitnessFn teams = do
-    putStrLn $ "avg fitness: " ++ (show ((sum $ fitnessFn <$> teams) / (fromIntegral $ length teams)))
     let maxFitness = maximum $ fitnessFn <$> teams
+    putStrLn $
+        "max fitness: " ++ show maxFitness ++
+        " avg fitness: " ++ (show ((sum $ fitnessFn <$> teams) / (fromIntegral $ length teams)))
     newTeams <- replicateM (length teams) (selectFrom maxFitness fitnessFn teams)
     mutate newTeams
 
