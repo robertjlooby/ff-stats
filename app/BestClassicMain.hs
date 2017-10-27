@@ -6,6 +6,7 @@ import qualified Data.ByteString.Lazy as BL
 import           Data.Csv (decodeByName)
 import           Data.Semigroup ((<>))
 import           Options.Applicative (Parser, (<**>), auto, execParser, fullDesc, helper, info, long, option, progDesc, str)
+import           System.Remote.Monitoring
 
 import           BestClassic
 import           Fitness
@@ -28,6 +29,7 @@ paramsParser = Params
 
 main :: IO ()
 main = do
+    _ <- forkServer "localhost" 8000
     params <- execParser opts
     csvData <- BL.readFile (file params)
     case decodeByName csvData of
