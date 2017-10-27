@@ -15,6 +15,7 @@ nameOverrides =
       & Map.insert ("Adrian Peterson", RB, "NO") "adrian-peterson-min"
       & Map.insert ("Alex Smith", QB, "KC") "alex-smith-sf"
       & Map.insert ("Chris Ivory", RB, "JAX") "christopher-ivory"
+      & Map.insert ("Chris Thompson", WR, "HOU") "chris-thompson-wr"
       & Map.insert ("Danny Vitale", RB, "CLE") "dan-vitale"
       & Map.insert ("David Johnson", RB, "ARI") "david-johnson-rb"
       & Map.insert ("J.J. Nelson", WR, "ARI") "j.j.-nelson"
