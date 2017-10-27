@@ -18,4 +18,4 @@
 
 # Get the best classic lineup (from a csv that has projections)
 
-`stack exec best-classic -- --file /path/to/csv --pool 100 --salary 50000`
+`stack exec best-classic -- --file /path/to/csv --pool 100 --salary 50000 --count 5`
