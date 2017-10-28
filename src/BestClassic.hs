@@ -15,7 +15,7 @@ import           Types
 pickBestLineups :: Int -> Int -> Int -> Vector ClassicPlayerWithProjected -> IO [ClassicTeam]
 pickBestLineups salaryCap resultCount poolSize players = do
     teams <- replicateM poolSize (generateTeam pool)
-    newTeams <- iterateIO 50 (nextGeneration rate) (return teams)
+    newTeams <- iterateIO 150 (nextGeneration rate) (return teams)
     let best = take resultCount $ sortBy (\t1 t2 -> compare (rate t2) (rate t1)) $ nub newTeams
     return best
   where
@@ -56,7 +56,7 @@ mutate (first:second:rest) = do
 mutate teams = return teams
 
 crossoverProb :: Float
-crossoverProb = 0.1
+crossoverProb = 0.05
 
 mutatePair :: ClassicTeam -> ClassicTeam -> IO [ClassicTeam]
 mutatePair first second = do
