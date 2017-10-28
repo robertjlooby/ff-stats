@@ -30,7 +30,7 @@ iterateIO times iterator state
         iterateIO (times - 1) iterator (iterator currentState)
 
 minTeamDifference :: Int
-minTeamDifference = 2
+minTeamDifference = 4
 
 getTop :: (ClassicTeam -> Float) -> Int -> [ClassicTeam] -> [ClassicTeam]
 getTop fitnessFn resultCount allTeams =
