@@ -132,7 +132,7 @@ data ClassicPlayerWithProjected = ClassicPlayerWithProjected
     , cpAvgPointsPerGame :: Float
     , cpProjectedPoints :: Float
     , cpTeam :: TeamName }
-    deriving (Eq, Show)
+    deriving (Eq, Ord, Show)
 
 instance Arbitrary ClassicPlayerWithProjected where
     arbitrary = ClassicPlayerWithProjected

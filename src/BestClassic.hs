@@ -3,7 +3,8 @@
 module BestClassic where
 
 import           Control.Monad (replicateM)
-import           Data.List (nub, sortBy)
+import           Data.List (sortBy)
+import           Data.Set (difference, fromList, size)
 import           Data.Vector (Vector)
 import           System.Random (getStdRandom, randomR)
 
@@ -16,8 +17,7 @@ pickBestLineups :: Int -> Int -> Int -> Vector ClassicPlayerWithProjected -> IO 
 pickBestLineups salaryCap resultCount poolSize players = do
     teams <- replicateM poolSize (generateTeam pool)
     newTeams <- iterateIO 150 (nextGeneration rate) (return teams)
-    let best = take resultCount $ sortBy (\t1 t2 -> compare (rate t2) (rate t1)) $ nub newTeams
-    return best
+    return $ getTop rate resultCount newTeams
   where
     pool = generatePlayerPool players
     rate = fitness salaryCap
@@ -28,6 +28,29 @@ iterateIO times iterator state
     | otherwise  = do
         currentState <- state
         iterateIO (times - 1) iterator (iterator currentState)
+
+minTeamDifference :: Int
+minTeamDifference = 2
+
+getTop :: (ClassicTeam -> Float) -> Int -> [ClassicTeam] -> [ClassicTeam]
+getTop fitnessFn resultCount allTeams =
+    go resultCount sortedTeams []
+  where
+    sortedTeams = sortBy (\t1 t2 -> compare (fitnessFn t2) (fitnessFn t1)) allTeams
+    go count teams results
+        | count <= 0 = reverse results
+        | otherwise  =
+            let (nextTeam:rest) = teams
+            in
+                if nextTeam `noOverlap` results then
+                    go (count - 1) rest (nextTeam:results)
+                else
+                    go count rest results
+    noOverlap team results =
+        let teamPlayers = fromList $ allPlayers team
+            differences = (size . (difference teamPlayers) . fromList . allPlayers) <$> results
+        in
+            all (\diff -> diff >= minTeamDifference) differences
 
 nextGeneration :: (ClassicTeam -> Float) -> [ClassicTeam] -> IO [ClassicTeam]
 nextGeneration fitnessFn teams = do
