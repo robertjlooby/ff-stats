@@ -55,56 +55,6 @@ newtype TeamName =
 instance Arbitrary TeamName where
     arbitrary = TeamName <$> arbitrary
 
-data PickEmPlayer = PickEmPlayer
-    { name :: PlayerName
-    , position :: Position
-    , rosterPosition :: T.Text
-    , gameInfo :: T.Text
-    , avgPointsPerGame :: Float
-    , plTeam :: TeamName }
-    deriving (Eq, Show)
-
-instance FromNamedRecord PickEmPlayer where
-    parseNamedRecord m =
-        PickEmPlayer
-          <$> m .: "Name"
-          <*> m .: "Position"
-          <*> m .: "Roster_Position"
-          <*> m .: "GameInfo"
-          <*> m .: "AvgPointsPerGame"
-          <*> m .: "teamAbbrev"
-
-data PickEmPlayerWithProjected = PickEmPlayerWithProjected
-    { pName :: PlayerName
-    , pPosition :: Position
-    , pRosterPosition :: T.Text
-    , pGameInfo :: T.Text
-    , pAvgPointsPerGame :: Float
-    , pProjectedPoints :: Float
-    , pTeam :: TeamName }
-    deriving (Eq, Show)
-
-instance ToNamedRecord PickEmPlayerWithProjected where
-    toNamedRecord player =
-        namedRecord [ "Name" .= pName player
-                    , "Position" .= pPosition player
-                    , "Roster_Position" .= pRosterPosition player
-                    , "GameInfo" .= pGameInfo player
-                    , "AvgPointsPerGame" .= pAvgPointsPerGame player
-                    , "teamAbbrev" .= pTeam player
-                    , "Projected" .= pProjectedPoints player
-                    ]
-
-instance DefaultOrdered PickEmPlayerWithProjected where
-    headerOrder _ = header [ "Name"
-                           , "Position"
-                           , "Roster_Position"
-                           , "GameInfo"
-                           , "AvgPointsPerGame"
-                           , "teamAbbrev"
-                           , "Projected"
-                           ]
-
 data ClassicPlayer = ClassicPlayer
     { cName :: PlayerName
     , cPosition :: Position
@@ -176,10 +126,7 @@ instance DefaultOrdered ClassicPlayerWithProjected where
                            , "Projected"
                            ]
 
-shouldUsePPR :: PickEmPlayer -> Bool
-shouldUsePPR player = position player /= QB
-
-shouldUsePPR' :: ClassicPlayer -> Bool
-shouldUsePPR' player = pos /= QB && pos /= DST
+shouldUsePPR :: ClassicPlayer -> Bool
+shouldUsePPR player = pos /= QB && pos /= DST
   where
       pos = cPosition player

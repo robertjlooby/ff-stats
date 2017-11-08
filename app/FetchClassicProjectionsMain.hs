@@ -39,4 +39,4 @@ main = do
       left -> print left
   where
     opts = info (paramsParser <**> helper)
-      ( fullDesc <> progDesc "Fetch projected scores for a pick 'em csv" )
+      ( fullDesc <> progDesc "Fetch projected scores for the week" )
