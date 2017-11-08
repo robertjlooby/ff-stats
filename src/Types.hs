@@ -60,14 +60,12 @@ data Player = Player
     , _position :: Position
     , _salary :: Int
     , _gameInfo :: T.Text
-    , _avgPointsPerGame :: Float
     , _team :: TeamName }
     deriving (Eq, Ord, Show)
 
 instance Arbitrary Player where
     arbitrary = Player
         <$> arbitrary
-        <*> arbitrary
         <*> arbitrary
         <*> arbitrary
         <*> arbitrary
@@ -80,8 +78,7 @@ instance FromNamedRecord Player where
           <*> m .: "Position"
           <*> m .: "Salary"
           <*> m .: "GameInfo"
-          <*> m .: "AvgPointsPerGame"
-          <*> m .: "teamAbbrev"
+          <*> m .: "TeamAbbrev"
 
 data PlayerWithProjected = PlayerWithProjected
     { _player :: Player
@@ -105,8 +102,7 @@ instance ToNamedRecord PlayerWithProjected where
                     , "Position" .= _position player
                     , "Salary" .= _salary player
                     , "GameInfo" .= _gameInfo player
-                    , "AvgPointsPerGame" .= _avgPointsPerGame player
-                    , "teamAbbrev" .= _team player
+                    , "TeamAbbrev" .= _team player
                     , "Projected" .= _projectedPoints playerWithProjected
                     ]
       where
@@ -117,8 +113,7 @@ instance DefaultOrdered PlayerWithProjected where
                            , "Position"
                            , "Salary"
                            , "GameInfo"
-                           , "AvgPointsPerGame"
-                           , "teamAbbrev"
+                           , "TeamAbbrev"
                            , "Projected"
                            ]
 
