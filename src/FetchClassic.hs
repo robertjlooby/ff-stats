@@ -35,7 +35,7 @@ getPlayersWithProjected week' players = do
 
 playerWithProjected :: T.Text -> ClassicPlayer -> IO (Either String ClassicPlayerWithProjected)
 playerWithProjected week' player = do
-    projected <- getProjectedScore (getNameWithOverride player) week' (shouldUsePPR' player)
+    projected <- getProjectedScore (getNameWithOverride player) week' (shouldUsePPR player)
     case projected of
       Right score -> return . Right $ withProjected player score
       Left err -> do
