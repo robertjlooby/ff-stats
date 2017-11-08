@@ -8,7 +8,7 @@ import           Data.Semigroup ((<>))
 import           Options.Applicative (Parser, (<**>), auto, execParser, fullDesc, helper, info, long, option, progDesc, str)
 import           System.Remote.Monitoring
 
-import           BestClassic
+import           BestTeams
 import           Fitness
 import           Teams (allPlayers)
 import           Types (cpName, getPlayerName)
@@ -39,7 +39,7 @@ main = do
       left -> print left
   where
     opts = info (paramsParser <**> helper)
-      ( fullDesc <> progDesc "The classic lineup from a csv (with projections)" )
+      ( fullDesc <> progDesc "The lineup from a csv (with projections)" )
     showTeam fitnessFn lineup = do
         putStrLn "Team:"
         putStrLn $ "  Fitness: " <> (show . fitnessFn $ lineup)
