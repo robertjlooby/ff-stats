@@ -43,7 +43,9 @@ instance Arbitrary PlayerPool where
             tes
             dsts
       where
-        setPosition pos player = player { cpPosition = pos }
+        setPosition pos playerWithProjected =
+            let player = _player playerWithProjected
+            in playerWithProjected { _player = player { _position = pos }}
         mkPlayers pos = do
             players <- vector 5 `suchThat` (\l -> nub l == l)
             return $ (setPosition pos) <$> players

@@ -11,7 +11,7 @@ import           System.Remote.Monitoring
 import           BestTeams
 import           Fitness
 import           Teams (allPlayers)
-import           Types (cpName, getPlayerName)
+import           Types (_name, _player, getPlayerName)
 
 data Params = Params
     { file :: String
@@ -44,4 +44,4 @@ main = do
         putStrLn "Team:"
         putStrLn $ "  Fitness: " <> (show . fitnessFn $ lineup)
         putStrLn $ "  Salary: " <> (show . salary $ lineup)
-        putStrLn $ "  Team: " <> (show $ getPlayerName . cpName <$> allPlayers lineup)
+        putStrLn $ "  Team: " <> (show $ getPlayerName . _name . _player <$> allPlayers lineup)
