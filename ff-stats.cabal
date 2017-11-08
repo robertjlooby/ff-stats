@@ -13,12 +13,12 @@ build-type:          Simple
 extra-source-files:  README.md
 cabal-version:       >=1.10
 
-executable best-classic
+executable best-teams
   hs-source-dirs:      app
                      , src
-  main-is:             BestClassicMain.hs
+  main-is:             BestTeamsMain.hs
   ghc-options:         -Wall -threaded -rtsopts "-with-rtsopts=-N -T"
-  other-modules:       BestClassic
+  other-modules:       BestTeams
                      , Fitness
                      , GenerateTeam
                      , Teams
@@ -37,12 +37,12 @@ executable best-classic
                      , vector
   default-language:    Haskell2010
 
-executable fetch-classic-projections
+executable fetch-projections
   hs-source-dirs:      app
                      , src
-  main-is:             FetchClassicProjectionsMain.hs
+  main-is:             FetchProjectionsMain.hs
   ghc-options:         -Wall -threaded -rtsopts "-with-rtsopts=-N -T"
-  other-modules:       FetchClassic
+  other-modules:       FetchProjections
                      , FetchWeekProjection
                      , SpecialCases
                      , Types

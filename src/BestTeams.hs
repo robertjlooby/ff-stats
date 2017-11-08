@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module BestClassic where
+module BestTeams where
 
 import           Control.Monad (replicateM)
 import           Data.List (sortBy)

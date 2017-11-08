@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module FetchClassic where
+module FetchProjections where
 
 import qualified Data.Map.Strict as Map
 import           Data.Semigroup ((<>))
