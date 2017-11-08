@@ -16,13 +16,13 @@ import Types
 withProjected :: Player -> Float -> PlayerWithProjected
 withProjected player projected =
     PlayerWithProjected
-        (cName player)
-        (cPosition player)
-        (cSalary player)
-        (cGameInfo player)
-        (cAvgPointsPerGame player)
+        (_name player)
+        (_position player)
+        (_salary player)
+        (_gameInfo player)
+        (_avgPointsPerGame player)
         projected
-        (cTeam player)
+        (_team player)
 
 getPlayersWithProjected :: T.Text -> Vector Player -> IO (Either String (Vector PlayerWithProjected))
 getPlayersWithProjected week' players = do
@@ -39,11 +39,11 @@ playerWithProjected week' player = do
     case projected of
       Right score -> return . Right $ withProjected player score
       Left err -> do
-          let msg = (T.unpack . getTeamName . cTeam $ player)
+          let msg = (T.unpack . getTeamName . _team $ player)
                       <> " "
-                      <> show (cPosition player)
+                      <> show (_position player)
                       <> " "
-                      <> (T.unpack . getPlayerName . cName $ player)
+                      <> (T.unpack . getPlayerName . _name $ player)
                       <> " -- "
                       <> err
           _ <- print msg
@@ -51,7 +51,7 @@ playerWithProjected week' player = do
 
 getNameWithOverride :: Player -> T.Text
 getNameWithOverride player =
-    let defaultName = paramifyName $ cName player
-        playerKey = (cName player, cPosition player, cTeam player)
+    let defaultName = paramifyName $ _name player
+        playerKey = (_name player, _position player, _team player)
     in
         Map.findWithDefault defaultName playerKey nameOverrides

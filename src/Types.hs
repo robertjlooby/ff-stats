@@ -56,12 +56,12 @@ instance Arbitrary TeamName where
     arbitrary = TeamName <$> arbitrary
 
 data Player = Player
-    { cName :: PlayerName
-    , cPosition :: Position
-    , cSalary :: Int
-    , cGameInfo :: T.Text
-    , cAvgPointsPerGame :: Float
-    , cTeam :: TeamName }
+    { _name :: PlayerName
+    , _position :: Position
+    , _salary :: Int
+    , _gameInfo :: T.Text
+    , _avgPointsPerGame :: Float
+    , _team :: TeamName }
     deriving (Eq, Show)
 
 instance FromNamedRecord Player where
@@ -129,4 +129,4 @@ instance DefaultOrdered PlayerWithProjected where
 shouldUsePPR :: Player -> Bool
 shouldUsePPR player = pos /= QB && pos /= DST
   where
-      pos = cPosition player
+      pos = _position player
