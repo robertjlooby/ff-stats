@@ -13,7 +13,7 @@ import           GenerateTeam
 import           Teams
 import           Types
 
-pickBestLineups :: Int -> Int -> Int -> Vector ClassicPlayerWithProjected -> IO [ClassicTeam]
+pickBestLineups :: Int -> Int -> Int -> Vector PlayerWithProjected -> IO [Team]
 pickBestLineups salaryCap resultCount poolSize players = do
     teams <- replicateM poolSize (generateTeam pool)
     newTeams <- iterateIO 150 (nextGeneration rate) (return teams)
@@ -32,7 +32,7 @@ iterateIO times iterator state
 minTeamDifference :: Int
 minTeamDifference = 4
 
-getTop :: (ClassicTeam -> Float) -> Int -> [ClassicTeam] -> [ClassicTeam]
+getTop :: (Team -> Float) -> Int -> [Team] -> [Team]
 getTop fitnessFn resultCount allTeams =
     go resultCount sortedTeams []
   where
@@ -52,7 +52,7 @@ getTop fitnessFn resultCount allTeams =
         in
             all (\diff -> diff >= minTeamDifference) differences
 
-nextGeneration :: (ClassicTeam -> Float) -> [ClassicTeam] -> IO [ClassicTeam]
+nextGeneration :: (Team -> Float) -> [Team] -> IO [Team]
 nextGeneration fitnessFn teams = do
     let maxFitness = maximum $ fitnessFn <$> teams
     putStrLn $
@@ -61,7 +61,7 @@ nextGeneration fitnessFn teams = do
     newTeams <- replicateM (length teams) (selectFrom maxFitness fitnessFn teams)
     mutate newTeams
 
-selectFrom :: Float -> (ClassicTeam -> Float) -> [ClassicTeam] -> IO ClassicTeam
+selectFrom :: Float -> (Team -> Float) -> [Team] -> IO Team
 selectFrom maxFitness fitnessFn teams = do
     index <- getStdRandom $ randomR (0, length teams - 1)
     prob <- getStdRandom $ randomR (0, 1)
@@ -71,7 +71,7 @@ selectFrom maxFitness fitnessFn teams = do
     else
         selectFrom maxFitness fitnessFn teams
 
-mutate :: [ClassicTeam] -> IO [ClassicTeam]
+mutate :: [Team] -> IO [Team]
 mutate (first:second:rest) = do
     mutated <- mutatePair first second
     mutatedRest <- mutate rest
@@ -81,7 +81,7 @@ mutate teams = return teams
 crossoverProb :: Float
 crossoverProb = 0.05
 
-mutatePair :: ClassicTeam -> ClassicTeam -> IO [ClassicTeam]
+mutatePair :: Team -> Team -> IO [Team]
 mutatePair first second = do
     (first', second') <- return (first, second)
         >>= mutateQbs
@@ -95,14 +95,14 @@ mutatePair first second = do
         >>= mutateDsts
     return $ [first', second']
 
-mutateQbs :: (ClassicTeam, ClassicTeam) -> IO (ClassicTeam, ClassicTeam)
+mutateQbs :: (Team, Team) -> IO (Team, Team)
 mutateQbs (first, second) = do
     prob <- getStdRandom $ randomR (0, 1)
     if prob < crossoverProb
        then return (first{_qb = _qb second}, second{_qb = _qb first})
        else return (first, second)
 
-mutateRb1s :: (ClassicTeam, ClassicTeam) -> IO (ClassicTeam, ClassicTeam)
+mutateRb1s :: (Team, Team) -> IO (Team, Team)
 mutateRb1s (first, second) = do
     prob <- getStdRandom $ randomR (0, 1)
     if prob < crossoverProb && okToSwap
@@ -112,7 +112,7 @@ mutateRb1s (first, second) = do
       okToSwap = not (_rb1 second `elem` allPlayers first) &&
                  not (_rb1 first `elem` allPlayers second)
 
-mutateRb2s :: (ClassicTeam, ClassicTeam) -> IO (ClassicTeam, ClassicTeam)
+mutateRb2s :: (Team, Team) -> IO (Team, Team)
 mutateRb2s (first, second) = do
     prob <- getStdRandom $ randomR (0, 1)
     if prob < crossoverProb && okToSwap
@@ -122,7 +122,7 @@ mutateRb2s (first, second) = do
       okToSwap = not (_rb2 second `elem` allPlayers first) &&
                  not (_rb2 first `elem` allPlayers second)
 
-mutateWr1s :: (ClassicTeam, ClassicTeam) -> IO (ClassicTeam, ClassicTeam)
+mutateWr1s :: (Team, Team) -> IO (Team, Team)
 mutateWr1s (first, second) = do
     prob <- getStdRandom $ randomR (0, 1)
     if prob < crossoverProb && okToSwap
@@ -132,7 +132,7 @@ mutateWr1s (first, second) = do
       okToSwap = not (_wr1 second `elem` allPlayers first) &&
                  not (_wr1 first `elem` allPlayers second)
 
-mutateWr2s :: (ClassicTeam, ClassicTeam) -> IO (ClassicTeam, ClassicTeam)
+mutateWr2s :: (Team, Team) -> IO (Team, Team)
 mutateWr2s (first, second) = do
     prob <- getStdRandom $ randomR (0, 1)
     if prob < crossoverProb && okToSwap
@@ -142,7 +142,7 @@ mutateWr2s (first, second) = do
       okToSwap = not (_wr2 second `elem` allPlayers first) &&
                  not (_wr2 first `elem` allPlayers second)
 
-mutateWr3s :: (ClassicTeam, ClassicTeam) -> IO (ClassicTeam, ClassicTeam)
+mutateWr3s :: (Team, Team) -> IO (Team, Team)
 mutateWr3s (first, second) = do
     prob <- getStdRandom $ randomR (0, 1)
     if prob < crossoverProb && okToSwap
@@ -152,7 +152,7 @@ mutateWr3s (first, second) = do
       okToSwap = not (_wr3 second `elem` allPlayers first) &&
                  not (_wr3 first `elem` allPlayers second)
 
-mutateTes :: (ClassicTeam, ClassicTeam) -> IO (ClassicTeam, ClassicTeam)
+mutateTes :: (Team, Team) -> IO (Team, Team)
 mutateTes (first, second) = do
     prob <- getStdRandom $ randomR (0, 1)
     if prob < crossoverProb && okToSwap
@@ -162,7 +162,7 @@ mutateTes (first, second) = do
       okToSwap = not (_te second `elem` allPlayers first) &&
                  not (_te first `elem` allPlayers second)
 
-mutateFlexes :: (ClassicTeam, ClassicTeam) -> IO (ClassicTeam, ClassicTeam)
+mutateFlexes :: (Team, Team) -> IO (Team, Team)
 mutateFlexes (first, second) = do
     prob <- getStdRandom $ randomR (0, 1)
     if prob < crossoverProb && okToSwap
@@ -172,7 +172,7 @@ mutateFlexes (first, second) = do
       okToSwap = not (_flex second `elem` allPlayers first) &&
                  not (_flex first `elem` allPlayers second)
 
-mutateDsts :: (ClassicTeam, ClassicTeam) -> IO (ClassicTeam, ClassicTeam)
+mutateDsts :: (Team, Team) -> IO (Team, Team)
 mutateDsts (first, second) = do
     prob <- getStdRandom $ randomR (0, 1)
     if prob < crossoverProb
