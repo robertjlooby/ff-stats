@@ -13,9 +13,9 @@ import SpecialCases (nameOverrides)
 import Types
 
 
-withProjected :: ClassicPlayer -> Float -> ClassicPlayerWithProjected
+withProjected :: Player -> Float -> PlayerWithProjected
 withProjected player projected =
-    ClassicPlayerWithProjected
+    PlayerWithProjected
         (cName player)
         (cPosition player)
         (cSalary player)
@@ -24,7 +24,7 @@ withProjected player projected =
         projected
         (cTeam player)
 
-getPlayersWithProjected :: T.Text -> Vector ClassicPlayer -> IO (Either String (Vector ClassicPlayerWithProjected))
+getPlayersWithProjected :: T.Text -> Vector Player -> IO (Either String (Vector PlayerWithProjected))
 getPlayersWithProjected week' players = do
     playersWithProjected <- traverse (playerWithProjected week') players
     return . sequence $ V.filter includePlayer playersWithProjected
@@ -33,7 +33,7 @@ getPlayersWithProjected week' players = do
       includePlayer (Right player) = cpProjectedPoints player >= 1
 
 
-playerWithProjected :: T.Text -> ClassicPlayer -> IO (Either String ClassicPlayerWithProjected)
+playerWithProjected :: T.Text -> Player -> IO (Either String PlayerWithProjected)
 playerWithProjected week' player = do
     projected <- getProjectedScore (getNameWithOverride player) week' (shouldUsePPR player)
     case projected of
@@ -49,7 +49,7 @@ playerWithProjected week' player = do
           _ <- print msg
           return $ Left msg
 
-getNameWithOverride :: ClassicPlayer -> T.Text
+getNameWithOverride :: Player -> T.Text
 getNameWithOverride player =
     let defaultName = paramifyName $ cName player
         playerKey = (cName player, cPosition player, cTeam player)

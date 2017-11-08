@@ -6,7 +6,7 @@ import           System.Random (getStdRandom, randomR)
 import Teams
 import Types
 
-generatePlayerPool :: V.Vector ClassicPlayerWithProjected -> PlayerPool
+generatePlayerPool :: V.Vector PlayerWithProjected -> PlayerPool
 generatePlayerPool players = PlayerPool
     (getPlayers QB)
     (getPlayers RB)
@@ -17,7 +17,7 @@ generatePlayerPool players = PlayerPool
     getPlayers pos = V.toList . V.filter (\p -> cpPosition p == pos) $ players
 
 
-generateTeam :: PlayerPool -> IO ClassicTeam
+generateTeam :: PlayerPool -> IO Team
 generateTeam pool = do
     (qb, _) <- popRandom $ _qbs pool
     (rb1, rbs') <- popRandom $ _rbs pool
@@ -28,7 +28,7 @@ generateTeam pool = do
     (te, tes') <- popRandom $ _tes pool
     (flex, _) <- popRandom $ rbs'' <> wrs''' <> tes'
     (dst, _) <- popRandom $ _dsts pool
-    return $ ClassicTeam
+    return $ Team
       qb
       rb1
       rb2

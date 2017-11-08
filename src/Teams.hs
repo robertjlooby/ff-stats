@@ -6,27 +6,27 @@ import           Test.QuickCheck.Gen (suchThat)
 
 import           Types
 
-data ClassicTeam = ClassicTeam
-    { _qb :: ClassicPlayerWithProjected
-    , _rb1 :: ClassicPlayerWithProjected
-    , _rb2 :: ClassicPlayerWithProjected
-    , _wr1 :: ClassicPlayerWithProjected
-    , _wr2 :: ClassicPlayerWithProjected
-    , _wr3 :: ClassicPlayerWithProjected
-    , _te :: ClassicPlayerWithProjected
-    , _flex :: ClassicPlayerWithProjected
-    , _dst :: ClassicPlayerWithProjected
+data Team = Team
+    { _qb :: PlayerWithProjected
+    , _rb1 :: PlayerWithProjected
+    , _rb2 :: PlayerWithProjected
+    , _wr1 :: PlayerWithProjected
+    , _wr2 :: PlayerWithProjected
+    , _wr3 :: PlayerWithProjected
+    , _te :: PlayerWithProjected
+    , _flex :: PlayerWithProjected
+    , _dst :: PlayerWithProjected
     } deriving (Eq, Show)
 
-allPlayers :: ClassicTeam -> [ClassicPlayerWithProjected]
+allPlayers :: Team -> [PlayerWithProjected]
 allPlayers team = [_qb, _rb1, _rb2, _wr1, _wr2, _wr3, _te, _flex, _dst] <*> pure team
 
 data PlayerPool = PlayerPool
-    { _qbs :: [ClassicPlayerWithProjected]
-    , _rbs :: [ClassicPlayerWithProjected]
-    , _wrs :: [ClassicPlayerWithProjected]
-    , _tes :: [ClassicPlayerWithProjected]
-    , _dsts :: [ClassicPlayerWithProjected]
+    { _qbs :: [PlayerWithProjected]
+    , _rbs :: [PlayerWithProjected]
+    , _wrs :: [PlayerWithProjected]
+    , _tes :: [PlayerWithProjected]
+    , _dsts :: [PlayerWithProjected]
     } deriving (Eq, Show)
 
 instance Arbitrary PlayerPool where

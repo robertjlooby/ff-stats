@@ -55,7 +55,7 @@ newtype TeamName =
 instance Arbitrary TeamName where
     arbitrary = TeamName <$> arbitrary
 
-data ClassicPlayer = ClassicPlayer
+data Player = Player
     { cName :: PlayerName
     , cPosition :: Position
     , cSalary :: Int
@@ -64,9 +64,9 @@ data ClassicPlayer = ClassicPlayer
     , cTeam :: TeamName }
     deriving (Eq, Show)
 
-instance FromNamedRecord ClassicPlayer where
+instance FromNamedRecord Player where
     parseNamedRecord m =
-        ClassicPlayer
+        Player
           <$> m .: "Name"
           <*> m .: "Position"
           <*> m .: "Salary"
@@ -74,7 +74,7 @@ instance FromNamedRecord ClassicPlayer where
           <*> m .: "AvgPointsPerGame"
           <*> m .: "teamAbbrev"
 
-data ClassicPlayerWithProjected = ClassicPlayerWithProjected
+data PlayerWithProjected = PlayerWithProjected
     { cpName :: PlayerName
     , cpPosition :: Position
     , cpSalary :: Int
@@ -84,8 +84,8 @@ data ClassicPlayerWithProjected = ClassicPlayerWithProjected
     , cpTeam :: TeamName }
     deriving (Eq, Ord, Show)
 
-instance Arbitrary ClassicPlayerWithProjected where
-    arbitrary = ClassicPlayerWithProjected
+instance Arbitrary PlayerWithProjected where
+    arbitrary = PlayerWithProjected
         <$> arbitrary
         <*> arbitrary
         <*> arbitrary
@@ -94,9 +94,9 @@ instance Arbitrary ClassicPlayerWithProjected where
         <*> arbitrary
         <*> arbitrary
 
-instance FromNamedRecord ClassicPlayerWithProjected where
+instance FromNamedRecord PlayerWithProjected where
     parseNamedRecord m =
-        ClassicPlayerWithProjected
+        PlayerWithProjected
           <$> m .: "Name"
           <*> m .: "Position"
           <*> m .: "Salary"
@@ -105,7 +105,7 @@ instance FromNamedRecord ClassicPlayerWithProjected where
           <*> m .: "Projected"
           <*> m .: "teamAbbrev"
 
-instance ToNamedRecord ClassicPlayerWithProjected where
+instance ToNamedRecord PlayerWithProjected where
     toNamedRecord player =
         namedRecord [ "Name" .= cpName player
                     , "Position" .= cpPosition player
@@ -116,7 +116,7 @@ instance ToNamedRecord ClassicPlayerWithProjected where
                     , "Projected" .= cpProjectedPoints player
                     ]
 
-instance DefaultOrdered ClassicPlayerWithProjected where
+instance DefaultOrdered PlayerWithProjected where
     headerOrder _ = header [ "Name"
                            , "Position"
                            , "Salary"
@@ -126,7 +126,7 @@ instance DefaultOrdered ClassicPlayerWithProjected where
                            , "Projected"
                            ]
 
-shouldUsePPR :: ClassicPlayer -> Bool
+shouldUsePPR :: Player -> Bool
 shouldUsePPR player = pos /= QB && pos /= DST
   where
       pos = cPosition player
