@@ -62,7 +62,16 @@ data Player = Player
     , _gameInfo :: T.Text
     , _avgPointsPerGame :: Float
     , _team :: TeamName }
-    deriving (Eq, Show)
+    deriving (Eq, Ord, Show)
+
+instance Arbitrary Player where
+    arbitrary = Player
+        <$> arbitrary
+        <*> arbitrary
+        <*> arbitrary
+        <*> arbitrary
+        <*> arbitrary
+        <*> arbitrary
 
 instance FromNamedRecord Player where
     parseNamedRecord m =
@@ -75,46 +84,33 @@ instance FromNamedRecord Player where
           <*> m .: "teamAbbrev"
 
 data PlayerWithProjected = PlayerWithProjected
-    { cpName :: PlayerName
-    , cpPosition :: Position
-    , cpSalary :: Int
-    , cpGameInfo :: T.Text
-    , cpAvgPointsPerGame :: Float
-    , cpProjectedPoints :: Float
-    , cpTeam :: TeamName }
+    { _player :: Player
+    , _projectedPoints :: Float }
     deriving (Eq, Ord, Show)
 
 instance Arbitrary PlayerWithProjected where
     arbitrary = PlayerWithProjected
         <$> arbitrary
         <*> arbitrary
-        <*> arbitrary
-        <*> arbitrary
-        <*> arbitrary
-        <*> arbitrary
-        <*> arbitrary
 
 instance FromNamedRecord PlayerWithProjected where
     parseNamedRecord m =
         PlayerWithProjected
-          <$> m .: "Name"
-          <*> m .: "Position"
-          <*> m .: "Salary"
-          <*> m .: "GameInfo"
-          <*> m .: "AvgPointsPerGame"
+          <$> parseNamedRecord m
           <*> m .: "Projected"
-          <*> m .: "teamAbbrev"
 
 instance ToNamedRecord PlayerWithProjected where
-    toNamedRecord player =
-        namedRecord [ "Name" .= cpName player
-                    , "Position" .= cpPosition player
-                    , "Salary" .= cpSalary player
-                    , "GameInfo" .= cpGameInfo player
-                    , "AvgPointsPerGame" .= cpAvgPointsPerGame player
-                    , "teamAbbrev" .= cpTeam player
-                    , "Projected" .= cpProjectedPoints player
+    toNamedRecord playerWithProjected =
+        namedRecord [ "Name" .= _name player
+                    , "Position" .= _position player
+                    , "Salary" .= _salary player
+                    , "GameInfo" .= _gameInfo player
+                    , "AvgPointsPerGame" .= _avgPointsPerGame player
+                    , "teamAbbrev" .= _team player
+                    , "Projected" .= _projectedPoints playerWithProjected
                     ]
+      where
+        player = _player playerWithProjected
 
 instance DefaultOrdered PlayerWithProjected where
     headerOrder _ = header [ "Name"

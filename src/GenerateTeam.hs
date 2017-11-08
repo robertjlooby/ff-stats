@@ -14,7 +14,8 @@ generatePlayerPool players = PlayerPool
     (getPlayers TE)
     (getPlayers DST)
   where
-    getPlayers pos = V.toList . V.filter (\p -> cpPosition p == pos) $ players
+    getPlayers pos = V.toList . V.filter (\p -> getPos p == pos) $ players
+    getPos = _position . _player
 
 
 generateTeam :: PlayerPool -> IO Team

@@ -4,11 +4,11 @@ import Teams
 import Types
 
 salary :: Team -> Int
-salary = sum . (fmap . fmap) cpSalary allPlayers
+salary = sum . (fmap . fmap) (_salary . _player) allPlayers
 
 fitness :: Int -> Team -> Float
 fitness salaryCap team =
     if salary team <= salaryCap then
-        sum $ cpProjectedPoints <$> allPlayers team
+        sum $ _projectedPoints <$> allPlayers team
     else
         0
