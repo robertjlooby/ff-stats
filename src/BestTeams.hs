@@ -1,7 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RankNTypes        #-}
 
 module BestTeams where
 
+import           Control.Lens (Lens', (^.), set)
 import           Control.Monad (replicateM)
 import           Data.List (sortBy)
 import           Data.Set (difference, fromList, size)
@@ -59,7 +61,7 @@ nextGeneration fitnessFn teams = do
         "max fitness: " ++ show maxFitness ++
         " avg fitness: " ++ (show ((sum $ fitnessFn <$> teams) / (fromIntegral $ length teams)))
     newTeams <- replicateM (length teams) (selectFrom maxFitness fitnessFn teams)
-    mutate newTeams
+    mutateTeams newTeams
 
 selectFrom :: Float -> (Team -> Float) -> [Team] -> IO Team
 selectFrom maxFitness fitnessFn teams = do
@@ -71,12 +73,12 @@ selectFrom maxFitness fitnessFn teams = do
     else
         selectFrom maxFitness fitnessFn teams
 
-mutate :: [Team] -> IO [Team]
-mutate (first:second:rest) = do
+mutateTeams :: [Team] -> IO [Team]
+mutateTeams (first:second:rest) = do
     mutated <- mutatePair first second
-    mutatedRest <- mutate rest
+    mutatedRest <- mutateTeams rest
     return $ mutated ++ mutatedRest
-mutate teams = return teams
+mutateTeams teams = return teams
 
 crossoverProb :: Float
 crossoverProb = 0.05
@@ -84,97 +86,23 @@ crossoverProb = 0.05
 mutatePair :: Team -> Team -> IO [Team]
 mutatePair first second = do
     (first', second') <- return (first, second)
-        >>= mutateQbs
-        >>= mutateRb1s
-        >>= mutateRb2s
-        >>= mutateWr1s
-        >>= mutateWr2s
-        >>= mutateWr3s
-        >>= mutateTes
-        >>= mutateFlexes
-        >>= mutateDsts
+        >>= mutate qb
+        >>= mutate rb1
+        >>= mutate rb2
+        >>= mutate wr1
+        >>= mutate wr2
+        >>= mutate wr3
+        >>= mutate te
+        >>= mutate flex
+        >>= mutate dst
     return $ [first', second']
 
-mutateQbs :: (Team, Team) -> IO (Team, Team)
-mutateQbs (first, second) = do
-    prob <- getStdRandom $ randomR (0, 1)
-    if prob < crossoverProb
-       then return (first{_qb = _qb second}, second{_qb = _qb first})
-       else return (first, second)
-
-mutateRb1s :: (Team, Team) -> IO (Team, Team)
-mutateRb1s (first, second) = do
+mutate :: Lens' Team PlayerWithProjected -> (Team, Team) -> IO (Team, Team)
+mutate position (first, second) = do
     prob <- getStdRandom $ randomR (0, 1)
     if prob < crossoverProb && okToSwap
-       then return (first{_rb1 = _rb1 second}, second{_rb1 = _rb1 first})
+       then return (set position (second^.position) first, set position (first^.position) second)
        else return (first, second)
   where
-      okToSwap = not (_rb1 second `elem` allPlayers first) &&
-                 not (_rb1 first `elem` allPlayers second)
-
-mutateRb2s :: (Team, Team) -> IO (Team, Team)
-mutateRb2s (first, second) = do
-    prob <- getStdRandom $ randomR (0, 1)
-    if prob < crossoverProb && okToSwap
-       then return (first{_rb2 = _rb2 second}, second{_rb2 = _rb2 first})
-       else return (first, second)
-  where
-      okToSwap = not (_rb2 second `elem` allPlayers first) &&
-                 not (_rb2 first `elem` allPlayers second)
-
-mutateWr1s :: (Team, Team) -> IO (Team, Team)
-mutateWr1s (first, second) = do
-    prob <- getStdRandom $ randomR (0, 1)
-    if prob < crossoverProb && okToSwap
-       then return (first{_wr1 = _wr1 second}, second{_wr1 = _wr1 first})
-       else return (first, second)
-  where
-      okToSwap = not (_wr1 second `elem` allPlayers first) &&
-                 not (_wr1 first `elem` allPlayers second)
-
-mutateWr2s :: (Team, Team) -> IO (Team, Team)
-mutateWr2s (first, second) = do
-    prob <- getStdRandom $ randomR (0, 1)
-    if prob < crossoverProb && okToSwap
-       then return (first{_wr2 = _wr2 second}, second{_wr2 = _wr2 first})
-       else return (first, second)
-  where
-      okToSwap = not (_wr2 second `elem` allPlayers first) &&
-                 not (_wr2 first `elem` allPlayers second)
-
-mutateWr3s :: (Team, Team) -> IO (Team, Team)
-mutateWr3s (first, second) = do
-    prob <- getStdRandom $ randomR (0, 1)
-    if prob < crossoverProb && okToSwap
-       then return (first{_wr3 = _wr3 second}, second{_wr3 = _wr3 first})
-       else return (first, second)
-  where
-      okToSwap = not (_wr3 second `elem` allPlayers first) &&
-                 not (_wr3 first `elem` allPlayers second)
-
-mutateTes :: (Team, Team) -> IO (Team, Team)
-mutateTes (first, second) = do
-    prob <- getStdRandom $ randomR (0, 1)
-    if prob < crossoverProb && okToSwap
-       then return (first{_te = _te second}, second{_te = _te first})
-       else return (first, second)
-  where
-      okToSwap = not (_te second `elem` allPlayers first) &&
-                 not (_te first `elem` allPlayers second)
-
-mutateFlexes :: (Team, Team) -> IO (Team, Team)
-mutateFlexes (first, second) = do
-    prob <- getStdRandom $ randomR (0, 1)
-    if prob < crossoverProb && okToSwap
-       then return (first{_flex = _flex second}, second{_flex = _flex first})
-       else return (first, second)
-  where
-      okToSwap = not (_flex second `elem` allPlayers first) &&
-                 not (_flex first `elem` allPlayers second)
-
-mutateDsts :: (Team, Team) -> IO (Team, Team)
-mutateDsts (first, second) = do
-    prob <- getStdRandom $ randomR (0, 1)
-    if prob < crossoverProb
-       then return (first{_dst = _dst second}, second{_dst = _dst first})
-       else return (first, second)
+      okToSwap = not (second^.position `elem` allPlayers first) &&
+                 not (first^.position `elem` allPlayers second)

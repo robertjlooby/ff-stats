@@ -3,7 +3,7 @@ module GenerateTeam where
 import           Data.Monoid ((<>))
 import qualified Data.Vector as V
 import           System.Random (getStdRandom, randomR)
-import Teams
+import Teams (PlayerPool(..), Team(..))
 import Types
 
 generatePlayerPool :: V.Vector PlayerWithProjected -> PlayerPool

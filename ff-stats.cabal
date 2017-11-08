@@ -28,6 +28,7 @@ executable best-teams
                      , cassava
                      , containers
                      , ekg
+                     , lens
                      , QuickCheck
                      , quickcheck-instances
                      , optparse-applicative
@@ -80,6 +81,7 @@ test-suite ff-stats-test
                      , bytestring
                      , cassava
                      , hspec
+                     , lens
                      , QuickCheck
                      , quickcheck-instances
                      , random

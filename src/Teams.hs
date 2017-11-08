@@ -1,5 +1,8 @@
+{-# LANGUAGE TemplateHaskell #-}
+
 module Teams where
 
+import           Control.Lens.TH (makeLenses)
 import           Data.List (nub)
 import           Test.QuickCheck.Arbitrary (Arbitrary(..), vector)
 import           Test.QuickCheck.Gen (suchThat)
@@ -17,6 +20,7 @@ data Team = Team
     , _flex :: PlayerWithProjected
     , _dst :: PlayerWithProjected
     } deriving (Eq, Show)
+makeLenses ''Team
 
 allPlayers :: Team -> [PlayerWithProjected]
 allPlayers team = [_qb, _rb1, _rb2, _wr1, _wr2, _wr3, _te, _flex, _dst] <*> pure team
