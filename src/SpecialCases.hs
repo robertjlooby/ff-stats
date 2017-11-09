@@ -12,12 +12,13 @@ import Types
 nameOverrides :: Map (PlayerName, Position, TeamName) T.Text
 nameOverrides =
     Map.empty
-      & Map.insert ("Adrian Peterson", RB, "NO") "adrian-peterson-min"
+      & Map.insert ("Adrian Peterson", RB, "ARI") "adrian-peterson-min"
       & Map.insert ("Alex Smith", QB, "KC") "alex-smith-sf"
       & Map.insert ("Chris Ivory", RB, "JAX") "christopher-ivory"
       & Map.insert ("Chris Thompson", WR, "HOU") "chris-thompson-wr"
       & Map.insert ("Danny Vitale", RB, "CLE") "dan-vitale"
       & Map.insert ("David Johnson", RB, "ARI") "david-johnson-rb"
+      & Map.insert ("J.D. McKissic", RB, "SEA") "j.d.-mckissic"
       & Map.insert ("J.J. Nelson", WR, "ARI") "j.j.-nelson"
       & Map.insert ("Michael Thomas", WR, "NO") "michael-thomas-wr"
       & Map.insert ("Mitchell Trubisky", QB, "CHI") "mitch-trubisky"
