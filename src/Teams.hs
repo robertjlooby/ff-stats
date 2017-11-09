@@ -1,8 +1,11 @@
-{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TemplateHaskell   #-}
 
 module Teams where
 
 import           Control.Lens.TH (makeLenses)
+import           Data.ByteString.Lazy (ByteString)
+import           Data.Csv (ToRecord(..), encode, record, toField)
 import           Data.List (nub)
 import           Test.QuickCheck.Arbitrary (Arbitrary(..), vector)
 import           Test.QuickCheck.Gen (suchThat)
@@ -21,6 +24,33 @@ data Team = Team
     , _dst :: PlayerWithProjected
     } deriving (Eq, Show)
 makeLenses ''Team
+
+instance ToRecord Team where
+    toRecord team =
+        record [ get _qb
+               , get _rb1
+               , get _rb2
+               , get _wr1
+               , get _wr2
+               , get _wr3
+               , get _te
+               , get _flex
+               , get _dst
+               ]
+      where
+        get position = toField . _nameAndId . _player . position $ team
+
+teamHeaders :: ByteString
+teamHeaders = encode [[ "QB" :: ByteString
+                      , "RB"
+                      , "RB"
+                      , "WR"
+                      , "WR"
+                      , "WR"
+                      , "TE"
+                      , "FLEX"
+                      , "DST"
+                     ]]
 
 allPlayers :: Team -> [PlayerWithProjected]
 allPlayers team = [_qb, _rb1, _rb2, _wr1, _wr2, _wr3, _te, _flex, _dst] <*> pure team
