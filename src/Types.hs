@@ -48,6 +48,13 @@ newtype PlayerName =
 instance Arbitrary PlayerName where
     arbitrary = PlayerName <$> arbitrary
 
+newtype PlayerNameAndId =
+    PlayerNameAndId { getPlayerNameAndId :: T.Text }
+    deriving (Eq, FromField, IsString, Ord, Show, ToField)
+
+instance Arbitrary PlayerNameAndId where
+    arbitrary = PlayerNameAndId <$> arbitrary
+
 newtype TeamName =
     TeamName { getTeamName :: T.Text }
     deriving (Eq, FromField, IsString, Ord, Show, ToField)
@@ -57,6 +64,7 @@ instance Arbitrary TeamName where
 
 data Player = Player
     { _name :: PlayerName
+    , _nameAndId :: PlayerNameAndId
     , _position :: Position
     , _salary :: Int
     , _gameInfo :: T.Text
@@ -70,11 +78,13 @@ instance Arbitrary Player where
         <*> arbitrary
         <*> arbitrary
         <*> arbitrary
+        <*> arbitrary
 
 instance FromNamedRecord Player where
     parseNamedRecord m =
         Player
           <$> m .: "Name"
+          <*> m .: "Name + ID"
           <*> m .: "Position"
           <*> m .: "Salary"
           <*> m .: "GameInfo"
@@ -99,6 +109,7 @@ instance FromNamedRecord PlayerWithProjected where
 instance ToNamedRecord PlayerWithProjected where
     toNamedRecord playerWithProjected =
         namedRecord [ "Name" .= _name player
+                    , "Name + ID" .= _nameAndId player
                     , "Position" .= _position player
                     , "Salary" .= _salary player
                     , "GameInfo" .= _gameInfo player
@@ -110,6 +121,7 @@ instance ToNamedRecord PlayerWithProjected where
 
 instance DefaultOrdered PlayerWithProjected where
     headerOrder _ = header [ "Name"
+                           , "Name + ID"
                            , "Position"
                            , "Salary"
                            , "GameInfo"
