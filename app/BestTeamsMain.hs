@@ -3,18 +3,19 @@
 module Main where
 
 import qualified Data.ByteString.Lazy as BL
-import           Data.Csv (decodeByName)
+import           Data.Csv (decodeByName, encode)
 import           Data.Semigroup ((<>))
 import           Options.Applicative (Parser, (<**>), auto, execParser, fullDesc, helper, info, long, option, progDesc, str)
 import           System.Remote.Monitoring
 
 import           BestTeams
 import           Fitness
-import           Teams (allPlayers)
+import           Teams (allPlayers, teamHeaders)
 import           Types (_name, _player, getPlayerName)
 
 data Params = Params
     { file :: String
+    , out  :: String
     , initialPoolSize :: Int
     , resultCount :: Int
     , salaryCap :: Int
@@ -23,6 +24,7 @@ data Params = Params
 paramsParser :: Parser Params
 paramsParser = Params
     <$> option str ( long "file")
+    <*> option str ( long "out")
     <*> option auto ( long "pool")
     <*> option auto ( long "count")
     <*> option auto ( long "salary")
@@ -35,6 +37,7 @@ main = do
     case decodeByName csvData of
       Right (_, players) -> do
           lineups <- pickBestLineups (salaryCap params) (resultCount params) (initialPoolSize params) players
+          BL.writeFile (out params) $ teamHeaders <> encode lineups
           mapM_ (showTeam (fitness (salaryCap params))) lineups
       left -> print left
   where
