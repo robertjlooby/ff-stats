@@ -8,7 +8,18 @@ salary = toInteger . sum . (fmap . fmap) (_salary . _player) allPlayers
 
 fitness :: Integer -> Team -> Float
 fitness salaryCap team =
-    if salary team <= salaryCap then
-        sum $ _projectedPoints <$> allPlayers team
-    else
-        0
+    if salary team <= salaryCap
+       then base + bonus
+       else 0
+  where
+    base = sum $ _projectedPoints <$> allPlayers team
+    qbTeam = _team . _player . _qb $ team
+    passCatchersOnQBsTeam =
+        length [ p | p <- _player <$> allPlayers team
+                   , _position p `elem` [TE, WR]
+                   , _team p == qbTeam
+               ]
+    bonus
+      | passCatchersOnQBsTeam >= 2 = 4
+      | passCatchersOnQBsTeam == 1 = 2
+      | otherwise                  = 0
