@@ -29,7 +29,7 @@ paramsParser = Params
 
 main :: IO ()
 main = do
-    _ <- forkServer "localhost" 8000
+    --_ <- forkServer "localhost" 8000
     params <- execParser opts
     config <- input auto (configFile params)
     csvData <- BL.readFile (file params)
