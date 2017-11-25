@@ -11,15 +11,48 @@ import Types
 spec :: Spec
 spec = describe "Fitness" $ do
     it "is the sum of the projected scores of players on the team" $
-        let player = Player "name" "name and id" QB 100 "" (TeamName "chi")
-            p = PlayerWithProjected player 10
-            team = Team p p p p p p p p p
+        let playerOn = Player "name" "name and id" QB 100 ""
+            otherQB = PlayerWithProjected (playerOn "CHI") 10
+            p = PlayerWithProjected (playerOn "GB") 10
+            team = Team otherQB p p p p p p p p
+            teamSalary = 1000
         in
-            fitness 1000 team `shouldBe` 90
+            fitness teamSalary team `shouldBe` 90
 
     it "is 0 if the team is over the salary cap" $
-        let player = Player "name" "name and id" QB 100 "" (TeamName "chi")
+        let player = Player "name" "name and id" QB 100 "" "CHI"
             p = PlayerWithProjected player 10
             team = Team p p p p p p p p p
+            teamSalary = 10
         in
-            fitness 10 team `shouldBe` 0
+            fitness teamSalary team `shouldBe` 0
+
+    it "applies a bonus if the TE is on the same team as the QB" $
+        let playerOn pos = Player "name" "name and id" pos 100 ""
+            chiQb = PlayerWithProjected (playerOn QB "CHI") 10
+            chiTe = PlayerWithProjected (playerOn TE "CHI") 10
+            p = PlayerWithProjected (playerOn RB "GB") 10
+            team = Team chiQb p p p p p chiTe p p
+            teamSalary = 1000
+        in
+            fitness teamSalary team `shouldBe` 92
+
+    it "applies a bonus if the a WR is on the same team as the QB" $
+        let playerOn pos = Player "name" "name and id" pos 100 ""
+            chiQb = PlayerWithProjected (playerOn QB "CHI") 10
+            chiWr = PlayerWithProjected (playerOn WR "CHI") 10
+            p = PlayerWithProjected (playerOn RB "GB") 10
+            team = Team chiQb p p p p p chiWr p p
+            teamSalary = 1000
+        in
+            fitness teamSalary team `shouldBe` 92
+
+    it "maxes the bonus at 4" $
+        let playerOn pos = Player "name" "name and id" pos 100 ""
+            chiQb = PlayerWithProjected (playerOn QB "CHI") 10
+            chiWr = PlayerWithProjected (playerOn WR "CHI") 10
+            p = PlayerWithProjected (playerOn RB "GB") 10
+            team = Team chiQb p p p chiWr chiWr chiWr p p
+            teamSalary = 1000
+        in
+            fitness teamSalary team `shouldBe` 94
