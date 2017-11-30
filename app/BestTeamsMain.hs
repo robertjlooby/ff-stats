@@ -5,7 +5,9 @@ module Main where
 import qualified Data.ByteString.Lazy as BL
 import           Data.Csv (decodeByName, encode)
 import           Data.Semigroup ((<>))
-import           Options.Applicative (Parser, (<**>), auto, execParser, fullDesc, helper, info, long, option, progDesc, str)
+import           Data.Text.Lazy (Text)
+import           Dhall (auto, input)
+import           Options.Applicative (Parser, (<**>), execParser, fullDesc, helper, info, long, option, progDesc, str)
 import           System.Remote.Monitoring
 
 import           BestTeams
@@ -14,31 +16,28 @@ import           Teams (allPlayers, teamHeaders)
 import           Types (_name, _player, getPlayerName)
 
 data Params = Params
-    { file :: String
+    { configFile :: Text
+    , file :: String
     , out  :: String
-    , initialPoolSize :: Int
-    , resultCount :: Int
-    , salaryCap :: Int
-    } deriving (Eq, Show)
+    }
 
 paramsParser :: Parser Params
 paramsParser = Params
-    <$> option str ( long "file")
+    <$> option str ( long "config")
+    <*> option str ( long "file")
     <*> option str ( long "out")
-    <*> option auto ( long "pool")
-    <*> option auto ( long "count")
-    <*> option auto ( long "salary")
 
 main :: IO ()
 main = do
     _ <- forkServer "localhost" 8000
     params <- execParser opts
+    config <- input auto (configFile params)
     csvData <- BL.readFile (file params)
     case decodeByName csvData of
       Right (_, players) -> do
-          lineups <- pickBestLineups (salaryCap params) (resultCount params) (initialPoolSize params) players
+          lineups <- pickBestLineups config players
           BL.writeFile (out params) $ teamHeaders <> encode lineups
-          mapM_ (showTeam (fitness (salaryCap params))) lineups
+          mapM_ (showTeam (fitness (_salaryCap config))) lineups
       left -> print left
   where
     opts = info (paramsParser <**> helper)

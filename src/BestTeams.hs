@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveGeneric     #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes        #-}
 
@@ -8,6 +9,7 @@ import           Control.Monad (replicateM)
 import           Data.List (sortBy)
 import           Data.Set (difference, fromList, size)
 import           Data.Vector (Vector)
+import           Dhall (Generic, Interpret)
 import           System.Random (getStdRandom, randomR)
 
 import           Fitness
@@ -15,16 +17,24 @@ import           GenerateTeam
 import           Teams
 import           Types
 
-pickBestLineups :: Int -> Int -> Int -> Vector PlayerWithProjected -> IO [Team]
-pickBestLineups salaryCap resultCount poolSize players = do
-    teams <- replicateM poolSize (generateTeam pool)
+data Config = Config
+    { _poolSize :: Integer
+    , _resultCount :: Integer
+    , _salaryCap :: Integer
+    } deriving (Generic)
+
+instance Interpret Config
+
+pickBestLineups :: Config -> Vector PlayerWithProjected -> IO [Team]
+pickBestLineups config players = do
+    teams <- replicateM (fromInteger $ _poolSize config) (generateTeam pool)
     newTeams <- iterateIO 150 (nextGeneration rate) (return teams)
-    return $ getTop rate resultCount newTeams
+    return $ getTop rate (_resultCount config) newTeams
   where
     pool = generatePlayerPool players
-    rate = fitness salaryCap
+    rate = fitness (_salaryCap config)
 
-iterateIO :: Int -> (a -> IO a) -> IO a -> IO a
+iterateIO :: Integer -> (a -> IO a) -> IO a -> IO a
 iterateIO times iterator state
     | times <= 0 = state
     | otherwise  = do
@@ -34,7 +44,7 @@ iterateIO times iterator state
 minTeamDifference :: Int
 minTeamDifference = 4
 
-getTop :: (Team -> Float) -> Int -> [Team] -> [Team]
+getTop :: (Team -> Float) -> Integer -> [Team] -> [Team]
 getTop fitnessFn resultCount allTeams =
     go resultCount sortedTeams []
   where

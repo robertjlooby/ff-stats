@@ -6,4 +6,4 @@
 
 # Get the best lineups (from a csv that has projections)
 
-`stack exec best-teams -- --file /path/to/csv --out /path/to/new-csv --pool 100 --salary 50000 --count 5`
+`stack exec best-teams -- --file /path/to/csv --out /path/to/new-csv --config ./config/example.dhall`
