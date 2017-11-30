@@ -27,6 +27,7 @@ executable best-teams
                      , bytestring
                      , cassava
                      , containers
+                     , dhall
                      , ekg
                      , lens
                      , QuickCheck
