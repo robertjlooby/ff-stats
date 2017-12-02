@@ -18,7 +18,8 @@ import           Teams
 import           Types
 
 data Config = Config
-    { _iterationRounds :: Integer
+    { _crossoverProb :: Double
+    , _iterationRounds :: Integer
     , _minTeamDifference :: Integer
     , _poolSize :: Integer
     , _resultCount :: Integer
@@ -30,7 +31,7 @@ instance Interpret Config
 pickBestLineups :: Config -> Vector PlayerWithProjected -> IO [Team]
 pickBestLineups config players = do
     teams <- replicateM (fromInteger $ _poolSize config) (generateTeam pool)
-    newTeams <- iterateIO (_iterationRounds config) (nextGeneration rate) (return teams)
+    newTeams <- iterateIO (_iterationRounds config) (nextGeneration (_crossoverProb config) rate) (return teams)
     return $ getTop rate (_minTeamDifference config) (_resultCount config) newTeams
   where
     pool = generatePlayerPool players
@@ -63,14 +64,14 @@ getTop fitnessFn minTeamDifference resultCount allTeams =
         in
             all (\diff -> diff >= minTeamDifference) differences
 
-nextGeneration :: (Team -> Float) -> [Team] -> IO [Team]
-nextGeneration fitnessFn teams = do
+nextGeneration :: Double -> (Team -> Float) -> [Team] -> IO [Team]
+nextGeneration crossoverProb fitnessFn teams = do
     let maxFitness = maximum $ fitnessFn <$> teams
     putStrLn $
         "max fitness: " ++ show maxFitness ++
         " avg fitness: " ++ (show ((sum $ fitnessFn <$> teams) / (fromIntegral $ length teams)))
     newTeams <- replicateM (length teams) (selectFrom maxFitness fitnessFn teams)
-    mutateTeams newTeams
+    mutateTeams crossoverProb newTeams
 
 selectFrom :: Float -> (Team -> Float) -> [Team] -> IO Team
 selectFrom maxFitness fitnessFn teams = do
@@ -82,32 +83,29 @@ selectFrom maxFitness fitnessFn teams = do
     else
         selectFrom maxFitness fitnessFn teams
 
-mutateTeams :: [Team] -> IO [Team]
-mutateTeams (first:second:rest) = do
-    mutated <- mutatePair first second
-    mutatedRest <- mutateTeams rest
+mutateTeams :: Double -> [Team] -> IO [Team]
+mutateTeams crossoverProb (first:second:rest) = do
+    mutated <- mutatePair crossoverProb first second
+    mutatedRest <- mutateTeams crossoverProb rest
     return $ mutated ++ mutatedRest
-mutateTeams teams = return teams
+mutateTeams _ teams = return teams
 
-crossoverProb :: Float
-crossoverProb = 0.05
-
-mutatePair :: Team -> Team -> IO [Team]
-mutatePair first second = do
+mutatePair :: Double -> Team -> Team -> IO [Team]
+mutatePair crossoverProb first second = do
     (first', second') <- return (first, second)
-        >>= mutate qb
-        >>= mutate rb1
-        >>= mutate rb2
-        >>= mutate wr1
-        >>= mutate wr2
-        >>= mutate wr3
-        >>= mutate te
-        >>= mutate flex
-        >>= mutate dst
+        >>= mutate crossoverProb qb
+        >>= mutate crossoverProb rb1
+        >>= mutate crossoverProb rb2
+        >>= mutate crossoverProb wr1
+        >>= mutate crossoverProb wr2
+        >>= mutate crossoverProb wr3
+        >>= mutate crossoverProb te
+        >>= mutate crossoverProb flex
+        >>= mutate crossoverProb dst
     return $ [first', second']
 
-mutate :: Lens' Team PlayerWithProjected -> (Team, Team) -> IO (Team, Team)
-mutate position (first, second) = do
+mutate :: Double -> Lens' Team PlayerWithProjected -> (Team, Team) -> IO (Team, Team)
+mutate crossoverProb position (first, second) = do
     prob <- getStdRandom $ randomR (0, 1)
     if prob < crossoverProb && okToSwap
        then return (set position (second^.position) first, set position (first^.position) second)
