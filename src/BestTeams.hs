@@ -19,6 +19,7 @@ import           Types
 
 data Config = Config
     { _iterationRounds :: Integer
+    , _minTeamDifference :: Integer
     , _poolSize :: Integer
     , _resultCount :: Integer
     , _salaryCap :: Integer
@@ -30,7 +31,7 @@ pickBestLineups :: Config -> Vector PlayerWithProjected -> IO [Team]
 pickBestLineups config players = do
     teams <- replicateM (fromInteger $ _poolSize config) (generateTeam pool)
     newTeams <- iterateIO (_iterationRounds config) (nextGeneration rate) (return teams)
-    return $ getTop rate (_resultCount config) newTeams
+    return $ getTop rate (_minTeamDifference config) (_resultCount config) newTeams
   where
     pool = generatePlayerPool players
     rate = fitness (_salaryCap config)
@@ -42,11 +43,8 @@ iterateIO times iterator state
         currentState <- state
         iterateIO (times - 1) iterator (iterator currentState)
 
-minTeamDifference :: Int
-minTeamDifference = 4
-
-getTop :: (Team -> Float) -> Integer -> [Team] -> [Team]
-getTop fitnessFn resultCount allTeams =
+getTop :: (Team -> Float) -> Integer -> Integer -> [Team] -> [Team]
+getTop fitnessFn minTeamDifference resultCount allTeams =
     go resultCount sortedTeams []
   where
     sortedTeams = sortBy (\t1 t2 -> compare (fitnessFn t2) (fitnessFn t1)) allTeams
@@ -61,7 +59,7 @@ getTop fitnessFn resultCount allTeams =
                     go count rest results
     noOverlap team results =
         let teamPlayers = fromList $ allPlayers team
-            differences = (size . (difference teamPlayers) . fromList . allPlayers) <$> results
+            differences = (toInteger . size . (difference teamPlayers) . fromList . allPlayers) <$> results
         in
             all (\diff -> diff >= minTeamDifference) differences
 
