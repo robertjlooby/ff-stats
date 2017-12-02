@@ -18,7 +18,8 @@ import           Teams
 import           Types
 
 data Config = Config
-    { _poolSize :: Integer
+    { _iterationRounds :: Integer
+    , _poolSize :: Integer
     , _resultCount :: Integer
     , _salaryCap :: Integer
     } deriving (Generic)
@@ -28,7 +29,7 @@ instance Interpret Config
 pickBestLineups :: Config -> Vector PlayerWithProjected -> IO [Team]
 pickBestLineups config players = do
     teams <- replicateM (fromInteger $ _poolSize config) (generateTeam pool)
-    newTeams <- iterateIO 150 (nextGeneration rate) (return teams)
+    newTeams <- iterateIO (_iterationRounds config) (nextGeneration rate) (return teams)
     return $ getTop rate (_resultCount config) newTeams
   where
     pool = generatePlayerPool players
