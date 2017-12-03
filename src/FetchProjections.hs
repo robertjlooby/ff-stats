@@ -1,30 +1,44 @@
+{-# LANGUAGE DeriveGeneric     #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module FetchProjections where
 
 import qualified Data.Map.Strict as Map
+import           Data.Map.Strict (Map)
 import           Data.Semigroup ((<>))
 import qualified Data.Text as T
 import           Data.Vector (Vector)
 import qualified Data.Vector as V
+import           Dhall (Generic, Interpret)
 
 import FetchWeekProjection
-import SpecialCases (nameOverrides)
 import Types
 
+data PlayerKey = PlayerKey
+    { name :: PlayerName
+    , position :: Position
+    , team :: TeamName
+    } deriving (Eq, Generic, Ord)
 
-getPlayersWithProjected :: T.Text -> Vector Player -> IO (Either String (Vector PlayerWithProjected))
-getPlayersWithProjected week' players = do
-    playersWithProjected <- traverse (playerWithProjected week') players
+instance Interpret PlayerKey
+
+data Config = Config
+    { _nameOverrides :: Map PlayerKey T.Text
+    }
+
+
+getPlayersWithProjected :: Config -> T.Text -> Vector Player -> IO (Either String (Vector PlayerWithProjected))
+getPlayersWithProjected config week' players = do
+    playersWithProjected <- traverse (playerWithProjected config week') players
     return . sequence $ V.filter includePlayer playersWithProjected
   where
       includePlayer (Left _) = False
       includePlayer (Right player) = _projectedPoints player >= 1
 
 
-playerWithProjected :: T.Text -> Player -> IO (Either String PlayerWithProjected)
-playerWithProjected week' player = do
-    projected <- getProjectedScore (getNameWithOverride player) week' (shouldUsePPR player)
+playerWithProjected :: Config -> T.Text -> Player -> IO (Either String PlayerWithProjected)
+playerWithProjected config week' player = do
+    projected <- getProjectedScore (getNameWithOverride config player) week' (shouldUsePPR player)
     case projected of
       Right score -> return . Right $ PlayerWithProjected player score
       Left err -> do
@@ -38,9 +52,9 @@ playerWithProjected week' player = do
           _ <- print msg
           return $ Left msg
 
-getNameWithOverride :: Player -> T.Text
-getNameWithOverride player =
+getNameWithOverride :: Config -> Player -> T.Text
+getNameWithOverride config player =
     let defaultName = paramifyName $ _name player
-        playerKey = (_name player, _position player, _team player)
+        playerKey = PlayerKey (_name player) (_position player) (_team player)
     in
-        Map.findWithDefault defaultName playerKey nameOverrides
+        Map.findWithDefault defaultName playerKey (_nameOverrides config)

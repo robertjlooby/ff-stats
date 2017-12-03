@@ -4,9 +4,11 @@ module Main where
 
 import qualified Data.ByteString.Lazy as BL
 import           Data.Csv (decodeByName, encodeDefaultOrderedByName)
+import qualified Data.Map.Strict as Map
 import           Data.Semigroup ((<>))
 import qualified Data.Text as T
 import           Data.Vector (toList)
+import           Dhall (auto, input)
 import           Options.Applicative (Parser, (<**>), execParser, fullDesc, helper, info, long, option, progDesc, str)
 import           Options.Applicative.Text (text)
 import           System.Remote.Monitoring
@@ -29,10 +31,11 @@ main :: IO ()
 main = do
     _ <- forkServer "localhost" 8000
     params <- execParser opts
+    nameOverrides <- Map.fromList <$> input auto "./config/name_overrides.dhall"
     csvData <- BL.readFile (file params)
     case decodeByName csvData of
       Right (_, players) -> do
-          players' <- getPlayersWithProjected (week params) players
+          players' <- getPlayersWithProjected (Config nameOverrides) (week params) players
           case players' of
             Right ps -> BL.writeFile (out params) $ encodeDefaultOrderedByName (toList ps)
             Left err -> print err

@@ -46,12 +46,12 @@ executable fetch-projections
   ghc-options:         -Wall -threaded -rtsopts "-with-rtsopts=-N -T"
   other-modules:       FetchProjections
                      , FetchWeekProjection
-                     , SpecialCases
                      , Types
   build-depends:       base
                      , bytestring
                      , cassava
                      , containers
+                     , dhall
                      , ekg
                      , html-conduit
                      , lens
