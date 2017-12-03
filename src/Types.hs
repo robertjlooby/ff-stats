@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE OverloadedStrings          #-}
 
@@ -8,6 +9,7 @@ import           Data.Csv (DefaultOrdered(..), FromField(..), FromNamedRecord(..
 import           Data.Semigroup ((<>))
 import           Data.String (IsString)
 import qualified Data.Text as T
+import           Dhall (Generic, Interpret)
 import           Test.QuickCheck.Arbitrary (Arbitrary(..))
 import           Test.QuickCheck.Gen (oneof)
 import           Test.QuickCheck.Instances ()
@@ -18,7 +20,9 @@ data Position =
     | WR
     | TE
     | DST
-    deriving (Eq, Ord, Show)
+    deriving (Eq, Generic, Ord, Show)
+
+instance Interpret Position
 
 instance Arbitrary Position where
     arbitrary = oneof
@@ -43,7 +47,9 @@ instance ToField Position where
 
 newtype PlayerName =
     PlayerName { getPlayerName :: T.Text }
-    deriving (Eq, FromField, IsString, Ord, Show, ToField)
+    deriving (Eq, FromField, Generic, IsString, Ord, Show, ToField)
+
+instance Interpret PlayerName
 
 instance Arbitrary PlayerName where
     arbitrary = PlayerName <$> arbitrary
@@ -57,7 +63,9 @@ instance Arbitrary PlayerNameAndId where
 
 newtype TeamName =
     TeamName { getTeamName :: T.Text }
-    deriving (Eq, FromField, IsString, Ord, Show, ToField)
+    deriving (Eq, FromField, Generic, IsString, Ord, Show, ToField)
+
+instance Interpret TeamName
 
 instance Arbitrary TeamName where
     arbitrary = TeamName <$> arbitrary
