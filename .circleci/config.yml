@@ -2,13 +2,6 @@ defaults: &defaults
   working_directory: ~/ff-stats
   docker:
     - image: fpco/stack-build:lts-9.3
-      environment:
-        DATABASE_URL: postgres://user@localhost:5432/ff-stats
-    - image: postgres:9.6.2
-      environment:
-        POSTGRES_USER: user
-        POSTGRES_PASSWORD: ""
-        POSTGRES_DB: ff-stats
 
 version: 2
 jobs:
