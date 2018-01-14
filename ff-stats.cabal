@@ -81,6 +81,7 @@ test-suite ff-stats-test
   build-depends:       base
                      , bytestring
                      , cassava
+                     , dhall
                      , hspec
                      , lens
                      , QuickCheck

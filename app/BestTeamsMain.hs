@@ -37,7 +37,7 @@ main = do
       Right (_, players) -> do
           lineups <- pickBestLineups config players
           BL.writeFile (out params) $ teamHeaders <> encode lineups
-          mapM_ (showTeam (fitness (_salaryCap config))) lineups
+          mapM_ (showTeam (fitness (_strategy config) (_salaryCap config))) lineups
       left -> print left
   where
     opts = info (paramsParser <**> helper)

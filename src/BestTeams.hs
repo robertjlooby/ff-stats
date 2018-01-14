@@ -24,6 +24,7 @@ data Config = Config
     , _poolSize :: Integer
     , _resultCount :: Integer
     , _salaryCap :: Integer
+    , _strategy :: Strategy
     } deriving (Generic)
 
 instance Interpret Config
@@ -35,7 +36,7 @@ pickBestLineups config players = do
     return $ getTop rate (_minTeamDifference config) (_resultCount config) newTeams
   where
     pool = generatePlayerPool players
-    rate = fitness (_salaryCap config)
+    rate = fitness (_strategy config) (_salaryCap config)
 
 iterateIO :: Integer -> (a -> IO a) -> IO a -> IO a
 iterateIO times iterator state
