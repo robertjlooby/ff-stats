@@ -1,16 +1,26 @@
+{-# LANGUAGE DeriveGeneric     #-}
+
 module Fitness where
 
+import Dhall (Generic, Interpret)
 import Teams
 import Types
+
+data Strategy
+    = Normal
+    | Stacked
+    deriving (Eq, Generic)
+
+instance Interpret Strategy
 
 salary :: Team -> Integer
 salary = toInteger . sum . (fmap . fmap) (_salary . _player) allPlayers
 
-fitness :: Integer -> Team -> Float
-fitness salaryCap team =
-    if salary team <= salaryCap
-       then base + bonus
-       else 0
+fitness :: Strategy -> Integer -> Team -> Float
+fitness strategy salaryCap team
+  | salary team > salaryCap = 0
+  | strategy == Stacked     = base + bonus
+  | otherwise               = base
   where
     base = sum $ _projectedPoints <$> allPlayers team
     qbTeam = _team . _player . _qb $ team
