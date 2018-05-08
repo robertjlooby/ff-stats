@@ -1,7 +1,7 @@
 defaults: &defaults
   working_directory: ~/ff-stats
   docker:
-    - image: fpco/stack-build:lts-9.3
+    - image: fpco/stack-build:lts-11.7
 
 version: 2
 jobs:
