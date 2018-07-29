@@ -18,6 +18,7 @@ executable best-teams
                      , src
   main-is:             BestTeamsMain.hs
   ghc-options:         -Wall -threaded -rtsopts "-with-rtsopts=-N -T"
+  default-extensions:  OverloadedStrings
   other-modules:       BestTeams
                      , Fitness
                      , GenerateTeam
@@ -44,6 +45,7 @@ executable fetch-projections
                      , src
   main-is:             FetchProjectionsMain.hs
   ghc-options:         -Wall -threaded -rtsopts "-with-rtsopts=-N -T"
+  default-extensions:  OverloadedStrings
   other-modules:       FetchProjections
                      , FetchWeekProjection
                      , Types
@@ -90,6 +92,7 @@ test-suite ff-stats-test
                      , text
                      , vector
   ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
+  default-extensions:  OverloadedStrings
   default-language:    Haskell2010
 
 source-repository head
