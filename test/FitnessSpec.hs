@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 module FitnessSpec where
 
 import Test.Hspec (Spec, describe, it, shouldBe)
