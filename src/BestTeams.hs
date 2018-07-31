@@ -65,9 +65,9 @@ getTop fitnessFn minTeamDifference resultCount allTeams =
     noOverlap team results =
       let teamPlayers = fromList $ allPlayers team
           differences =
-            (toInteger . size . (difference teamPlayers) . fromList . allPlayers) <$>
+            toInteger . size . difference teamPlayers . fromList . allPlayers <$>
             results
-       in all (\diff -> diff >= minTeamDifference) differences
+       in all (>= minTeamDifference) differences
 
 nextGeneration :: Double -> (Team -> Float) -> [Team] -> IO [Team]
 nextGeneration crossoverProb fitnessFn teams = do
@@ -76,7 +76,7 @@ nextGeneration crossoverProb fitnessFn teams = do
     "max fitness: " ++
     show maxFitness ++
     " avg fitness: " ++
-    (show ((sum $ fitnessFn <$> teams) / (fromIntegral $ length teams)))
+    show (sum (fitnessFn <$> teams) / fromIntegral (length teams))
   newTeams <- replicateM (length teams) (selectFrom maxFitness fitnessFn teams)
   mutateTeams crossoverProb newTeams
 
@@ -99,8 +99,7 @@ mutateTeams _ teams = return teams
 mutatePair :: Double -> Team -> Team -> IO [Team]
 mutatePair crossoverProb first second = do
   (first', second') <-
-    return (first, second) >>= mutate crossoverProb qb >>=
-    mutate crossoverProb rb1 >>=
+    mutate crossoverProb qb (first, second) >>= mutate crossoverProb rb1 >>=
     mutate crossoverProb rb2 >>=
     mutate crossoverProb wr1 >>=
     mutate crossoverProb wr2 >>=
@@ -108,7 +107,7 @@ mutatePair crossoverProb first second = do
     mutate crossoverProb te >>=
     mutate crossoverProb flex >>=
     mutate crossoverProb dst
-  return $ [first', second']
+  return [first', second']
 
 mutate ::
      Double -> Lens' Team PlayerWithProjected -> (Team, Team) -> IO (Team, Team)
@@ -121,5 +120,5 @@ mutate crossoverProb position (first, second) = do
     else return (first, second)
   where
     okToSwap =
-      not (second ^. position `elem` allPlayers first) &&
-      not (first ^. position `elem` allPlayers second)
+      notElem (second ^. position) (allPlayers first) &&
+      notElem (first ^. position) (allPlayers second)
