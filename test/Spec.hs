@@ -1,11 +1,12 @@
 module Main where
 
-import           Test.Hspec (hspec)
+import Test.Hspec (hspec)
 
-import           FitnessSpec (spec)
-import           GenerateTeamSpec (spec)
+import FitnessSpec (spec)
+import GenerateTeamSpec (spec)
 
 main :: IO ()
-main = hspec $ do
+main =
+  hspec $ do
     FitnessSpec.spec
     GenerateTeamSpec.spec
