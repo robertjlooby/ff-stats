@@ -72,4 +72,4 @@ instance Arbitrary PlayerPool where
          in playerWithProjected {_player = player {_position = pos}}
       mkPlayers pos = do
         players <- vector 5 `suchThat` (\l -> nub l == l)
-        return $ (setPosition pos) <$> players
+        return $ setPosition pos <$> players

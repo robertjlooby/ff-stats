@@ -58,4 +58,4 @@ main = do
       putStrLn $ "  Salary: " <> (show . salary $ lineup)
       putStrLn $
         "  Team: " <>
-        (show $ getPlayerName . _name . _player <$> allPlayers lineup)
+        show (getPlayerName . _name . _player <$> allPlayers lineup)

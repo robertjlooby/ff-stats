@@ -21,7 +21,7 @@ data PlayerKey = PlayerKey
 
 instance Interpret PlayerKey
 
-data Config = Config
+newtype Config = Config
   { _nameOverrides :: Map PlayerKey T.Text
   }
 

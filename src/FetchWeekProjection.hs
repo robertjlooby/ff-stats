@@ -45,7 +45,7 @@ getProjectedScore name week usePPR = do
   let body = resp ^. responseBody
       outlook =
         listToMaybe $
-        (fromDocument $ parseLBS body) $//
+        fromDocument (parseLBS body) $//
         (element "div" >=> attributeIs "class" "outlook")
   case outlook of
     Just cursor ->
