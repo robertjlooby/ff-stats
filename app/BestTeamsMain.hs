@@ -3,7 +3,7 @@ module Main where
 import qualified Data.ByteString.Lazy as BL
 import Data.Csv (decodeByName, encode)
 import Data.Semigroup ((<>))
-import Data.Text.Lazy (Text)
+import Data.Text (Text)
 import Dhall (auto, input)
 import Options.Applicative
   ( Parser
