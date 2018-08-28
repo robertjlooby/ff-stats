@@ -91,7 +91,7 @@ instance FromNamedRecord Player where
   parseNamedRecord m =
     Player <$> m .: "Name" <*> m .: "Name + ID" <*> m .: "Position" <*>
     m .: "Salary" <*>
-    m .: "GameInfo" <*>
+    m .: "Game Info" <*>
     m .: "TeamAbbrev"
 
 data PlayerWithProjected = PlayerWithProjected
@@ -113,7 +113,7 @@ instance ToNamedRecord PlayerWithProjected where
       , "Name + ID" .= _nameAndId player
       , "Position" .= _position player
       , "Salary" .= _salary player
-      , "GameInfo" .= _gameInfo player
+      , "Game Info" .= _gameInfo player
       , "TeamAbbrev" .= _team player
       , "Projected" .= _projectedPoints playerWithProjected
       ]
@@ -127,7 +127,7 @@ instance DefaultOrdered PlayerWithProjected where
       , "Name + ID"
       , "Position"
       , "Salary"
-      , "GameInfo"
+      , "Game Info"
       , "TeamAbbrev"
       , "Projected"
       ]
