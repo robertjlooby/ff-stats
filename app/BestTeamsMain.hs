@@ -17,7 +17,6 @@ import Options.Applicative
   , progDesc
   , str
   )
-import System.Remote.Monitoring
 
 import BestTeams
 import Fitness
@@ -40,7 +39,6 @@ main = do
   params <- execParser opts
   config <- input auto (configFile params)
   csvData <- BL.readFile (file params)
-  -- _ <- forkServer "localhost" 8000
   case decodeByName csvData of
     Right (_, players) -> do
       lineups <- pickBestLineups config players
