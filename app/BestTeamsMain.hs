@@ -1,5 +1,6 @@
 module Main where
 
+import Control.Monad.Trans.Reader (runReaderT)
 import qualified Data.ByteString.Lazy as BL
 import Data.Csv (decodeByName, encode)
 import Data.Semigroup ((<>))
@@ -41,7 +42,7 @@ main = do
   csvData <- BL.readFile (file params)
   case decodeByName csvData of
     Right (_, players) -> do
-      lineups <- pickBestLineups config players
+      lineups <- runReaderT (pickBestLineups players) config
       BL.writeFile (out params) $ teamHeaders <> encode lineups
       mapM_ (showTeam (fitness (_strategy config) (_salaryCap config))) lineups
     left -> print left

@@ -5,6 +5,8 @@ module BestTeams where
 
 import Control.Lens (Lens', (^.), set)
 import Control.Monad (replicateM)
+import Control.Monad.IO.Class (liftIO)
+import Control.Monad.Trans.Reader (ReaderT, ask)
 import Data.List (sortBy)
 import Data.Set (difference, fromList, size)
 import Data.Vector (Vector)
@@ -28,19 +30,25 @@ data Config = Config
 
 instance Interpret Config
 
-pickBestLineups :: Config -> Vector PlayerWithProjected -> IO [Team]
-pickBestLineups config players = do
-  teams <- replicateM (fromInteger $ _poolSize config) (generateTeam pool)
-  newTeams <-
-    iterateIO
-      (_iterationRounds config)
-      (nextGeneration (_crossoverProb config) rate)
-      (return teams)
-  return $
-    getTop rate (_minTeamDifference config) (_resultCount config) newTeams
+pickBestLineups :: Vector PlayerWithProjected -> ReaderT Config IO [Team]
+pickBestLineups players = do
+  config <- ask
+  liftIO $ do
+    teams <- replicateM (fromInteger $ _poolSize config) (generateTeam pool)
+    newTeams <-
+      iterateIO
+        (_iterationRounds config)
+        (nextGeneration (_crossoverProb config) (rate config))
+        (return teams)
+    return $
+      getTop
+        (rate config)
+        (_minTeamDifference config)
+        (_resultCount config)
+        newTeams
   where
     pool = generatePlayerPool players
-    rate = fitness (_strategy config) (_salaryCap config)
+    rate config = fitness (_strategy config) (_salaryCap config)
 
 iterateIO :: Integer -> (a -> IO a) -> IO a -> IO a
 iterateIO times iterator state
