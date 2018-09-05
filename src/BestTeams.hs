@@ -77,20 +77,19 @@ getTop fitnessFn allTeams = do
 nextGeneration :: (Team -> Float) -> [Team] -> ReaderT Config IO [Team]
 nextGeneration fitnessFn teams = do
   let maxFitness = maximum $ fitnessFn <$> teams
-  newTeams <-
-    liftIO $ do
-      putStrLn $
-        "max fitness: " ++
-        show maxFitness ++
-        " avg fitness: " ++
-        show (sum (fitnessFn <$> teams) / fromIntegral (length teams))
-      replicateM (length teams) (selectFrom maxFitness fitnessFn teams)
+  liftIO $
+    putStrLn $
+    "max fitness: " ++
+    show maxFitness ++
+    " avg fitness: " ++
+    show (sum (fitnessFn <$> teams) / fromIntegral (length teams))
+  newTeams <- replicateM (length teams) (selectFrom maxFitness fitnessFn teams)
   mutateTeams newTeams
 
-selectFrom :: Float -> (Team -> Float) -> [Team] -> IO Team
+selectFrom :: Float -> (Team -> Float) -> [Team] -> ReaderT Config IO Team
 selectFrom maxFitness fitnessFn teams = do
-  index <- getStdRandom $ randomR (0, length teams - 1)
-  prob <- getStdRandom $ randomR (0, 1)
+  index <- liftIO $ getStdRandom $ randomR (0, length teams - 1)
+  prob <- liftIO $ getStdRandom $ randomR (0, 1)
   let team = teams !! index
   if fitnessFn team / maxFitness >= prob
     then return team
