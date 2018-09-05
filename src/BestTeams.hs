@@ -60,6 +60,7 @@ getTop fitnessFn allTeams = do
   where
     sortedTeams =
       sortBy (\t1 t2 -> compare (fitnessFn t2) (fitnessFn t1)) allTeams
+    go _ _ [] results = results
     go minTeamDifference count (nextTeam:rest) results
       | count <= 0 = reverse results
       | otherwise =
@@ -76,16 +77,15 @@ getTop fitnessFn allTeams = do
 nextGeneration :: (Team -> Float) -> [Team] -> ReaderT Config IO [Team]
 nextGeneration fitnessFn teams = do
   let maxFitness = maximum $ fitnessFn <$> teams
-  crossoverProb <- asks _crossoverProb
-  liftIO $ do
-    putStrLn $
-      "max fitness: " ++
-      show maxFitness ++
-      " avg fitness: " ++
-      show (sum (fitnessFn <$> teams) / fromIntegral (length teams))
-    newTeams <-
+  newTeams <-
+    liftIO $ do
+      putStrLn $
+        "max fitness: " ++
+        show maxFitness ++
+        " avg fitness: " ++
+        show (sum (fitnessFn <$> teams) / fromIntegral (length teams))
       replicateM (length teams) (selectFrom maxFitness fitnessFn teams)
-    mutateTeams crossoverProb newTeams
+  mutateTeams newTeams
 
 selectFrom :: Float -> (Team -> Float) -> [Team] -> IO Team
 selectFrom maxFitness fitnessFn teams = do
@@ -96,30 +96,31 @@ selectFrom maxFitness fitnessFn teams = do
     then return team
     else selectFrom maxFitness fitnessFn teams
 
-mutateTeams :: Double -> [Team] -> IO [Team]
-mutateTeams crossoverProb (first:second:rest) = do
-  mutated <- mutatePair crossoverProb first second
-  mutatedRest <- mutateTeams crossoverProb rest
+mutateTeams :: [Team] -> ReaderT Config IO [Team]
+mutateTeams (first:second:rest) = do
+  mutated <- mutatePair first second
+  mutatedRest <- mutateTeams rest
   return $ mutated ++ mutatedRest
-mutateTeams _ teams = return teams
+mutateTeams teams = return teams
 
-mutatePair :: Double -> Team -> Team -> IO [Team]
-mutatePair crossoverProb first second = do
+mutatePair :: Team -> Team -> ReaderT Config IO [Team]
+mutatePair first second = do
   (first', second') <-
-    mutate crossoverProb qb (first, second) >>= mutate crossoverProb rb1 >>=
-    mutate crossoverProb rb2 >>=
-    mutate crossoverProb wr1 >>=
-    mutate crossoverProb wr2 >>=
-    mutate crossoverProb wr3 >>=
-    mutate crossoverProb te >>=
-    mutate crossoverProb flex >>=
-    mutate crossoverProb dst
+    mutate qb (first, second) >>= mutate rb1 >>= mutate rb2 >>= mutate wr1 >>=
+    mutate wr2 >>=
+    mutate wr3 >>=
+    mutate te >>=
+    mutate flex >>=
+    mutate dst
   return [first', second']
 
 mutate ::
-     Double -> Lens' Team PlayerWithProjected -> (Team, Team) -> IO (Team, Team)
-mutate crossoverProb position (first, second) = do
-  prob <- getStdRandom $ randomR (0, 1)
+     Lens' Team PlayerWithProjected
+  -> (Team, Team)
+  -> ReaderT Config IO (Team, Team)
+mutate position (first, second) = do
+  prob <- liftIO $ getStdRandom $ randomR (0, 1)
+  crossoverProb <- asks _crossoverProb
   if prob < crossoverProb && okToSwap
     then return
            ( set position (second ^. position) first
