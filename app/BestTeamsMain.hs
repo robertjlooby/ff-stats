@@ -44,7 +44,8 @@ main = do
     Right (_, players) -> do
       lineups <- runReaderT (pickBestLineups players) config
       BL.writeFile (out params) $ teamHeaders <> encode lineups
-      mapM_ (showTeam (fitness (_strategy config) (_salaryCap config))) lineups
+      fitnessFn <- runReaderT fitness config
+      mapM_ (showTeam fitnessFn) lineups
     left -> print left
   where
     opts =

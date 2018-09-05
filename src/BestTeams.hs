@@ -1,4 +1,3 @@
-{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE RankNTypes #-}
 
 module BestTeams where
@@ -10,40 +9,23 @@ import Control.Monad.Trans.Reader (ReaderT, ask, asks)
 import Data.List (sortBy)
 import Data.Set (difference, fromList, size)
 import Data.Vector (Vector)
-import Dhall (Generic, Interpret)
 import System.Random (getStdRandom, randomR)
 
+import BestTeamsConfig
 import Fitness
 import GenerateTeam
 import Teams
 import Types
-
-data Config = Config
-  { _crossoverProb :: Double
-  , _iterationRounds :: Integer
-  , _minTeamDifference :: Integer
-  , _poolSize :: Integer
-  , _resultCount :: Integer
-  , _salaryCap :: Integer
-  , _strategy :: Strategy
-  } deriving (Generic)
-
-instance Interpret Config
 
 pickBestLineups :: Vector PlayerWithProjected -> ReaderT Config IO [Team]
 pickBestLineups players = do
   config <- ask
   teams <-
     liftIO $ replicateM (fromInteger $ _poolSize config) (generateTeam pool)
-  newTeams <-
-    iterateIO
-      (_iterationRounds config)
-      (nextGeneration (rate config))
-      (return teams)
-  getTop (rate config) newTeams
+  newTeams <- iterateIO (_iterationRounds config) nextGeneration (return teams)
+  getTop newTeams
   where
     pool = generatePlayerPool players
-    rate config = fitness (_strategy config) (_salaryCap config)
 
 iterateIO :: Monad m => Integer -> (a -> m a) -> m a -> m a
 iterateIO times iterator state
@@ -52,13 +34,14 @@ iterateIO times iterator state
     currentState <- state
     iterateIO (times - 1) iterator (iterator currentState)
 
-getTop :: (Team -> Float) -> [Team] -> ReaderT Config IO [Team]
-getTop fitnessFn allTeams = do
+getTop :: [Team] -> ReaderT Config IO [Team]
+getTop allTeams = do
   minTeamDifference <- asks _minTeamDifference
   resultCount <- asks _resultCount
-  return $ go minTeamDifference resultCount sortedTeams []
+  fitnessFn <- fitness
+  return $ go minTeamDifference resultCount (sortedTeams fitnessFn) []
   where
-    sortedTeams =
+    sortedTeams fitnessFn =
       sortBy (\t1 t2 -> compare (fitnessFn t2) (fitnessFn t1)) allTeams
     go _ _ [] results = results
     go minTeamDifference count (nextTeam:rest) results
@@ -74,8 +57,9 @@ getTop fitnessFn allTeams = do
             results
        in all (>= minTeamDifference) differences
 
-nextGeneration :: (Team -> Float) -> [Team] -> ReaderT Config IO [Team]
-nextGeneration fitnessFn teams = do
+nextGeneration :: [Team] -> ReaderT Config IO [Team]
+nextGeneration teams = do
+  fitnessFn <- fitness
   let maxFitness = maximum $ fitnessFn <$> teams
   liftIO $
     putStrLn $
