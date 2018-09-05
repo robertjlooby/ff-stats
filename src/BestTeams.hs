@@ -40,12 +40,7 @@ pickBestLineups players = do
       (_iterationRounds config)
       (nextGeneration (rate config))
       (return teams)
-  return $
-    getTop
-      (rate config)
-      (_minTeamDifference config)
-      (_resultCount config)
-      newTeams
+  getTop (rate config) newTeams
   where
     pool = generatePlayerPool players
     rate config = fitness (_strategy config) (_salaryCap config)
@@ -57,20 +52,21 @@ iterateIO times iterator state
     currentState <- state
     iterateIO (times - 1) iterator (iterator currentState)
 
-getTop :: (Team -> Float) -> Integer -> Integer -> [Team] -> [Team]
-getTop fitnessFn minTeamDifference resultCount allTeams =
-  go resultCount sortedTeams []
+getTop :: (Team -> Float) -> [Team] -> ReaderT Config IO [Team]
+getTop fitnessFn allTeams = do
+  minTeamDifference <- asks _minTeamDifference
+  resultCount <- asks _resultCount
+  return $ go minTeamDifference resultCount sortedTeams []
   where
     sortedTeams =
       sortBy (\t1 t2 -> compare (fitnessFn t2) (fitnessFn t1)) allTeams
-    go count teams results
+    go minTeamDifference count (nextTeam:rest) results
       | count <= 0 = reverse results
       | otherwise =
-        let (nextTeam:rest) = teams
-         in if nextTeam `noOverlap` results
-              then go (count - 1) rest (nextTeam : results)
-              else go count rest results
-    noOverlap team results =
+        if noOverlap minTeamDifference nextTeam results
+          then go minTeamDifference (count - 1) rest (nextTeam : results)
+          else go minTeamDifference count rest results
+    noOverlap minTeamDifference team results =
       let teamPlayers = fromList $ allPlayers team
           differences =
             toInteger . size . difference teamPlayers . fromList . allPlayers <$>
