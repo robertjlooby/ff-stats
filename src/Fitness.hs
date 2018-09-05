@@ -1,23 +1,22 @@
-{-# LANGUAGE DeriveGeneric #-}
-
 module Fitness where
 
-import Dhall (Generic, Interpret)
+import Control.Monad.Trans.Reader (ReaderT, asks)
+
+import BestTeamsConfig
 import Teams
 import Types
-
-data Strategy
-  = Normal
-  | Stacked
-  deriving (Eq, Generic)
-
-instance Interpret Strategy
 
 salary :: Team -> Integer
 salary = toInteger . sum . (fmap . fmap) (_salary . _player) allPlayers
 
-fitness :: Strategy -> Integer -> Team -> Float
-fitness strategy salaryCap team
+fitness :: ReaderT Config IO (Team -> Float)
+fitness = do
+  strategy <- asks _strategy
+  salaryCap <- asks _salaryCap
+  return $ fitness' strategy salaryCap
+
+fitness' :: Strategy -> Integer -> Team -> Float
+fitness' strategy salaryCap team
   | salary team > salaryCap = 0
   | strategy == Stacked = base + bonus
   | otherwise = base

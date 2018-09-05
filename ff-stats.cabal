@@ -20,6 +20,7 @@ executable best-teams
   ghc-options:         -Wall -threaded -rtsopts "-with-rtsopts=-N -T"
   default-extensions:  OverloadedStrings
   other-modules:       BestTeams
+                     , BestTeamsConfig
                      , Fitness
                      , GenerateTeam
                      , Teams
@@ -75,7 +76,8 @@ test-suite ff-stats-test
   hs-source-dirs:      test
                      , src
   main-is:             Spec.hs
-  other-modules:       Fitness
+  other-modules:       BestTeamsConfig
+                     , Fitness
                      , FitnessSpec
                      , GenerateTeam
                      , GenerateTeamSpec
