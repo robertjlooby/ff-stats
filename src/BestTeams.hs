@@ -6,7 +6,7 @@ module BestTeams where
 import Control.Lens (Lens', (^.), set)
 import Control.Monad (replicateM)
 import Control.Monad.IO.Class (liftIO)
-import Control.Monad.Trans.Reader (ReaderT, ask)
+import Control.Monad.Trans.Reader (ReaderT, ask, asks)
 import Data.List (sortBy)
 import Data.Set (difference, fromList, size)
 import Data.Vector (Vector)
@@ -33,24 +33,24 @@ instance Interpret Config
 pickBestLineups :: Vector PlayerWithProjected -> ReaderT Config IO [Team]
 pickBestLineups players = do
   config <- ask
-  liftIO $ do
-    teams <- replicateM (fromInteger $ _poolSize config) (generateTeam pool)
-    newTeams <-
-      iterateIO
-        (_iterationRounds config)
-        (nextGeneration (_crossoverProb config) (rate config))
-        (return teams)
-    return $
-      getTop
-        (rate config)
-        (_minTeamDifference config)
-        (_resultCount config)
-        newTeams
+  teams <-
+    liftIO $ replicateM (fromInteger $ _poolSize config) (generateTeam pool)
+  newTeams <-
+    iterateIO
+      (_iterationRounds config)
+      (nextGeneration (rate config))
+      (return teams)
+  return $
+    getTop
+      (rate config)
+      (_minTeamDifference config)
+      (_resultCount config)
+      newTeams
   where
     pool = generatePlayerPool players
     rate config = fitness (_strategy config) (_salaryCap config)
 
-iterateIO :: Integer -> (a -> IO a) -> IO a -> IO a
+iterateIO :: Monad m => Integer -> (a -> m a) -> m a -> m a
 iterateIO times iterator state
   | times <= 0 = state
   | otherwise = do
@@ -77,16 +77,19 @@ getTop fitnessFn minTeamDifference resultCount allTeams =
             results
        in all (>= minTeamDifference) differences
 
-nextGeneration :: Double -> (Team -> Float) -> [Team] -> IO [Team]
-nextGeneration crossoverProb fitnessFn teams = do
+nextGeneration :: (Team -> Float) -> [Team] -> ReaderT Config IO [Team]
+nextGeneration fitnessFn teams = do
   let maxFitness = maximum $ fitnessFn <$> teams
-  putStrLn $
-    "max fitness: " ++
-    show maxFitness ++
-    " avg fitness: " ++
-    show (sum (fitnessFn <$> teams) / fromIntegral (length teams))
-  newTeams <- replicateM (length teams) (selectFrom maxFitness fitnessFn teams)
-  mutateTeams crossoverProb newTeams
+  crossoverProb <- asks _crossoverProb
+  liftIO $ do
+    putStrLn $
+      "max fitness: " ++
+      show maxFitness ++
+      " avg fitness: " ++
+      show (sum (fitnessFn <$> teams) / fromIntegral (length teams))
+    newTeams <-
+      replicateM (length teams) (selectFrom maxFitness fitnessFn teams)
+    mutateTeams crossoverProb newTeams
 
 selectFrom :: Float -> (Team -> Float) -> [Team] -> IO Team
 selectFrom maxFitness fitnessFn teams = do
