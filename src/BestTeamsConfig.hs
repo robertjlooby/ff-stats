@@ -1,8 +1,18 @@
 {-# LANGUAGE DeriveGeneric #-}
 
-module BestTeamsConfig where
+module BestTeamsConfig
+  ( module BestTeamsConfig
+  , ask
+  , asks
+  ) where
 
+import Control.Monad.Trans.Reader (ReaderT, ask, asks, runReaderT)
 import Dhall (Generic, Interpret)
+
+type App = ReaderT Config IO
+
+runApp :: App a -> Config -> IO a
+runApp = runReaderT
 
 data Config = Config
   { _crossoverProb :: Double

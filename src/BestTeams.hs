@@ -5,7 +5,6 @@ module BestTeams where
 import Control.Lens (Lens', (^.), set)
 import Control.Monad (replicateM)
 import Control.Monad.IO.Class (liftIO)
-import Control.Monad.Trans.Reader (ReaderT, ask, asks)
 import Data.List (sortBy)
 import Data.Set (difference, fromList, size)
 import Data.Vector (Vector)
@@ -17,7 +16,7 @@ import GenerateTeam
 import Teams
 import Types
 
-pickBestLineups :: Vector PlayerWithProjected -> ReaderT Config IO [Team]
+pickBestLineups :: Vector PlayerWithProjected -> App [Team]
 pickBestLineups players = do
   config <- ask
   teams <-
@@ -34,7 +33,7 @@ iterateIO times iterator state
     currentState <- state
     iterateIO (times - 1) iterator (iterator currentState)
 
-getTop :: [Team] -> ReaderT Config IO [Team]
+getTop :: [Team] -> App [Team]
 getTop allTeams = do
   minTeamDifference <- asks _minTeamDifference
   resultCount <- asks _resultCount
@@ -57,7 +56,7 @@ getTop allTeams = do
             results
        in all (>= minTeamDifference) differences
 
-nextGeneration :: [Team] -> ReaderT Config IO [Team]
+nextGeneration :: [Team] -> App [Team]
 nextGeneration teams = do
   fitnessFn <- fitness
   let maxFitness = maximum $ fitnessFn <$> teams
@@ -70,7 +69,7 @@ nextGeneration teams = do
   newTeams <- replicateM (length teams) (selectFrom maxFitness fitnessFn teams)
   mutateTeams newTeams
 
-selectFrom :: Float -> (Team -> Float) -> [Team] -> ReaderT Config IO Team
+selectFrom :: Float -> (Team -> Float) -> [Team] -> App Team
 selectFrom maxFitness fitnessFn teams = do
   index <- liftIO $ getStdRandom $ randomR (0, length teams - 1)
   prob <- liftIO $ getStdRandom $ randomR (0, 1)
@@ -79,14 +78,14 @@ selectFrom maxFitness fitnessFn teams = do
     then return team
     else selectFrom maxFitness fitnessFn teams
 
-mutateTeams :: [Team] -> ReaderT Config IO [Team]
+mutateTeams :: [Team] -> App [Team]
 mutateTeams (first:second:rest) = do
   mutated <- mutatePair first second
   mutatedRest <- mutateTeams rest
   return $ mutated ++ mutatedRest
 mutateTeams teams = return teams
 
-mutatePair :: Team -> Team -> ReaderT Config IO [Team]
+mutatePair :: Team -> Team -> App [Team]
 mutatePair first second = do
   (first', second') <-
     mutate qb (first, second) >>= mutate rb1 >>= mutate rb2 >>= mutate wr1 >>=
@@ -97,10 +96,7 @@ mutatePair first second = do
     mutate dst
   return [first', second']
 
-mutate ::
-     Lens' Team PlayerWithProjected
-  -> (Team, Team)
-  -> ReaderT Config IO (Team, Team)
+mutate :: Lens' Team PlayerWithProjected -> (Team, Team) -> App (Team, Team)
 mutate position (first, second) = do
   prob <- liftIO $ getStdRandom $ randomR (0, 1)
   crossoverProb <- asks _crossoverProb
