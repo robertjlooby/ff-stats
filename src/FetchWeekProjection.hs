@@ -33,7 +33,9 @@ request name week usePPR =
 
 paramifyName :: PlayerName -> T.Text
 paramifyName (PlayerName name) =
-  name & T.replace " Jr." "" & T.replace " Sr." "" & T.replace " II" "" &
+  name & T.replace " Jr." "" & T.replace " Sr." "" & T.replace " IV" "" &
+  T.replace " III" "" &
+  T.replace " II" "" &
   T.replace "." "" &
   T.replace "'" "" &
   T.replace " " "-" &
