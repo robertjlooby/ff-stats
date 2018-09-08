@@ -17,6 +17,7 @@ import Options.Applicative
   , progDesc
   , str
   )
+import System.Random (newStdGen)
 
 import BestTeams
 import BestTeamsConfig
@@ -42,9 +43,9 @@ main = do
   csvData <- BL.readFile (file params)
   case decodeByName csvData of
     Right (_, players) -> do
-      lineups <- runApp (pickBestLineups players) config
+      lineups <- runApp (pickBestLineups players) config =<< newStdGen
       BL.writeFile (out params) $ teamHeaders <> encode lineups
-      fitnessFn <- runApp fitness config
+      fitnessFn <- runApp fitness config =<< newStdGen
       mapM_ (showTeam fitnessFn) lineups
     left -> print left
   where
