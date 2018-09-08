@@ -1,8 +1,9 @@
 module GenerateTeam where
 
+import Control.Monad.Trans.State.Lazy (StateT, get, put)
 import Data.Monoid ((<>))
 import qualified Data.Vector as V
-import System.Random (getStdRandom, randomR)
+import System.Random (StdGen, randomR)
 import Teams (PlayerPool(..), Team(..))
 import Types
 
@@ -18,7 +19,7 @@ generatePlayerPool players =
     getPlayers pos = V.toList . V.filter (\p -> getPos p == pos) $ players
     getPos = _position . _player
 
-generateTeam :: PlayerPool -> IO Team
+generateTeam :: Monad m => PlayerPool -> StateT StdGen m Team
 generateTeam pool = do
   (qb, _) <- popRandom $ _qbs pool
   (rb1, rbs') <- popRandom $ _rbs pool
@@ -31,8 +32,10 @@ generateTeam pool = do
   (dst, _) <- popRandom $ _dsts pool
   return $ Team qb rb1 rb2 wr1 wr2 wr3 te flex dst
 
-popRandom :: [a] -> IO (a, [a])
+popRandom :: Monad m => [a] -> StateT StdGen m (a, [a])
 popRandom list = do
-  i <- getStdRandom $ randomR (0, length list - 1)
+  seed <- get
+  let (i, nextSeed) = randomR (0, length list - 1) seed
+  put nextSeed
   let (h, a:t) = splitAt i list
   return (a, h <> t)

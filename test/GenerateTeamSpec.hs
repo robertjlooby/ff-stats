@@ -1,5 +1,7 @@
 module GenerateTeamSpec where
 
+import Control.Monad.Trans.State.Lazy (evalState)
+import System.Random (newStdGen)
 import Test.Hspec (Spec, describe, it)
 import Test.QuickCheck ((===), conjoin, ioProperty, property)
 import Test.QuickCheck.Property (disjoin)
@@ -41,42 +43,42 @@ spec =
       it "generates a team with a qb" $
         property $ \pool ->
           ioProperty $ do
-            team <- generateTeam pool
+            team <- evalState (generateTeam pool) <$> newStdGen
             return $ QB === getPosition (_qb team)
       it "generates a team with a rb1" $
         property $ \pool ->
           ioProperty $ do
-            team <- generateTeam pool
+            team <- evalState (generateTeam pool) <$> newStdGen
             return $ RB === getPosition (_rb1 team)
       it "generates a team with a rb2" $
         property $ \pool ->
           ioProperty $ do
-            team <- generateTeam pool
+            team <- evalState (generateTeam pool) <$> newStdGen
             return $ RB === getPosition (_rb2 team)
       it "has unique running backs" $
         property $ \pool ->
           ioProperty $ do
-            team <- generateTeam pool
+            team <- evalState (generateTeam pool) <$> newStdGen
             return $ _rb1 team /= _rb2 team
       it "generates a team with a wr1" $
         property $ \pool ->
           ioProperty $ do
-            team <- generateTeam pool
+            team <- evalState (generateTeam pool) <$> newStdGen
             return $ WR === getPosition (_wr1 team)
       it "generates a team with a wr2" $
         property $ \pool ->
           ioProperty $ do
-            team <- generateTeam pool
+            team <- evalState (generateTeam pool) <$> newStdGen
             return $ WR === getPosition (_wr2 team)
       it "generates a team with a wr3" $
         property $ \pool ->
           ioProperty $ do
-            team <- generateTeam pool
+            team <- evalState (generateTeam pool) <$> newStdGen
             return $ WR === getPosition (_wr3 team)
       it "has unique wide receivers" $
         property $ \pool ->
           ioProperty $ do
-            team <- generateTeam pool
+            team <- evalState (generateTeam pool) <$> newStdGen
             return $
               conjoin
                 [ _wr1 team /= _wr2 team
@@ -86,12 +88,12 @@ spec =
       it "generates a team with a te" $
         property $ \pool ->
           ioProperty $ do
-            team <- generateTeam pool
+            team <- evalState (generateTeam pool) <$> newStdGen
             return $ TE === getPosition (_te team)
       it "generates a team with a flex" $
         property $ \pool ->
           ioProperty $ do
-            team <- generateTeam pool
+            team <- evalState (generateTeam pool) <$> newStdGen
             return $
               disjoin
                 [ RB === getPosition (_flex team)
@@ -101,7 +103,7 @@ spec =
       it "has unique flex" $
         property $ \pool ->
           ioProperty $ do
-            team <- generateTeam pool
+            team <- evalState (generateTeam pool) <$> newStdGen
             return $
               conjoin
                 [ _flex team /= _rb1 team
@@ -114,7 +116,7 @@ spec =
       it "generates a team with a dst" $
         property $ \pool ->
           ioProperty $ do
-            team <- generateTeam pool
+            team <- evalState (generateTeam pool) <$> newStdGen
             return $ DST === getPosition (_dst team)
 
 getPosition :: PlayerWithProjected -> Position

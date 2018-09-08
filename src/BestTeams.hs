@@ -5,6 +5,7 @@ module BestTeams where
 import Control.Lens (Lens', (^.), set)
 import Control.Monad (replicateM)
 import Control.Monad.IO.Class (liftIO)
+import Control.Monad.Trans.Class (lift)
 import Data.List (sortBy)
 import Data.Set (difference, fromList, size)
 import Data.Vector (Vector)
@@ -20,7 +21,7 @@ pickBestLineups :: Vector PlayerWithProjected -> App [Team]
 pickBestLineups players = do
   iterationRounds <- asks _iterationRounds
   poolSize <- fromInteger <$> asks _poolSize
-  teams <- liftIO $ replicateM poolSize (generateTeam pool)
+  teams <- lift $ replicateM poolSize (generateTeam pool)
   newTeams <- iterateIO iterationRounds nextGeneration (return teams)
   getTop newTeams
   where
