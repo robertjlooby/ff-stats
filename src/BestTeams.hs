@@ -18,10 +18,10 @@ import Types
 
 pickBestLineups :: Vector PlayerWithProjected -> App [Team]
 pickBestLineups players = do
-  config <- ask
-  teams <-
-    liftIO $ replicateM (fromInteger $ _poolSize config) (generateTeam pool)
-  newTeams <- iterateIO (_iterationRounds config) nextGeneration (return teams)
+  iterationRounds <- asks _iterationRounds
+  poolSize <- fromInteger <$> asks _poolSize
+  teams <- liftIO $ replicateM poolSize (generateTeam pool)
+  newTeams <- iterateIO iterationRounds nextGeneration (return teams)
   getTop newTeams
   where
     pool = generatePlayerPool players
