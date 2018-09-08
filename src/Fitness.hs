@@ -1,7 +1,5 @@
 module Fitness where
 
-import Control.Monad.Trans.Reader (ReaderT, asks)
-
 import BestTeamsConfig
 import Teams
 import Types
@@ -9,7 +7,7 @@ import Types
 salary :: Team -> Integer
 salary = toInteger . sum . (fmap . fmap) (_salary . _player) allPlayers
 
-fitness :: ReaderT Config IO (Team -> Float)
+fitness :: App (Team -> Float)
 fitness = do
   strategy <- asks _strategy
   salaryCap <- asks _salaryCap
