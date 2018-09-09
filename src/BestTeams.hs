@@ -3,7 +3,7 @@
 module BestTeams where
 
 import Control.Lens (Lens', (^.), set)
-import Control.Monad (replicateM)
+import Control.Monad (foldM, replicateM)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Class (lift)
 import Data.List (sortBy)
@@ -22,17 +22,10 @@ pickBestLineups players = do
   iterationRounds <- asks _iterationRounds
   poolSize <- fromInteger <$> asks _poolSize
   teams <- lift $ replicateM poolSize (generateTeam pool)
-  newTeams <- iterateIO iterationRounds nextGeneration (return teams)
+  newTeams <- foldM (\ts _ -> nextGeneration ts) teams [1 .. iterationRounds]
   getTop newTeams
   where
     pool = generatePlayerPool players
-
-iterateIO :: Monad m => Integer -> (a -> m a) -> m a -> m a
-iterateIO times iterator state
-  | times <= 0 = state
-  | otherwise = do
-    currentState <- state
-    iterateIO (times - 1) iterator (iterator currentState)
 
 getTop :: [Team] -> App [Team]
 getTop allTeams = do
