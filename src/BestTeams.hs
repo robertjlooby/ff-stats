@@ -6,11 +6,9 @@ import Control.Lens (Lens', (^.), set)
 import Control.Monad (foldM, replicateM)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Class (lift)
-import Control.Monad.Trans.State.Lazy (get, put)
 import Data.List (sortBy)
 import Data.Set (difference, fromList, size)
 import Data.Vector (Vector)
-import System.Random (randomR)
 
 import BestTeamsConfig
 import Fitness
@@ -22,7 +20,7 @@ pickBestLineups :: Vector PlayerWithProjected -> App [Team]
 pickBestLineups players = do
   iterationRounds <- asks _iterationRounds
   poolSize <- fromInteger <$> asks _poolSize
-  teams <- lift $ replicateM poolSize (generateTeam pool)
+  teams <- replicateM poolSize (generateTeam pool)
   newTeams <- foldM (\ts _ -> nextGeneration ts) teams [1 .. iterationRounds]
   getTop newTeams
   where
@@ -66,13 +64,8 @@ nextGeneration teams = do
 
 selectFrom :: Float -> (Team -> Float) -> [Team] -> App Team
 selectFrom maxFitness fitnessFn teams = do
-  (team, prob) <-
-    lift $ do
-      seed <- get
-      let (index, seed') = randomR (0, length teams - 1) seed
-      let (prob, seed'') = randomR (0, 1) seed'
-      put seed''
-      return (teams !! index, prob)
+  prob <- getRandom (0, 1)
+  team <- (teams !!) <$> getRandom (0, length teams - 1)
   if fitnessFn team / maxFitness >= prob
     then return team
     else selectFrom maxFitness fitnessFn teams
@@ -98,14 +91,12 @@ mutatePair first second = do
 mutate :: Lens' Team PlayerWithProjected -> (Team, Team) -> App (Team, Team)
 mutate position (first, second) = do
   crossoverProb <- asks _crossoverProb
-  lift $ do
-    (prob, seed') <- randomR (0, 1) <$> get
-    put seed'
-    if prob < crossoverProb && okToSwap
-      then return
-             ( set position (second ^. position) first
-             , set position (first ^. position) second)
-      else return (first, second)
+  prob <- getRandom (0, 1)
+  if prob < crossoverProb && okToSwap
+    then return
+           ( set position (second ^. position) first
+           , set position (first ^. position) second)
+    else return (first, second)
   where
     okToSwap =
       notElem (second ^. position) (allPlayers first) &&
