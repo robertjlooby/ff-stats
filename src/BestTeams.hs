@@ -6,6 +6,7 @@ import Control.Lens (Lens', (^.), set)
 import Control.Monad (foldM, replicateM)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Class (lift)
+import Control.Monad.Trans.State.Lazy (get, put)
 import Data.List (sortBy)
 import Data.Set (difference, fromList, size)
 import Data.Vector (Vector)
@@ -65,9 +66,13 @@ nextGeneration teams = do
 
 selectFrom :: Float -> (Team -> Float) -> [Team] -> App Team
 selectFrom maxFitness fitnessFn teams = do
-  index <- liftIO $ getStdRandom $ randomR (0, length teams - 1)
-  prob <- liftIO $ getStdRandom $ randomR (0, 1)
-  let team = teams !! index
+  (team, prob) <-
+    lift $ do
+      seed <- get
+      let (index, seed') = randomR (0, length teams - 1) seed
+      let (prob, seed'') = randomR (0, 1) seed'
+      put seed''
+      return (teams !! index, prob)
   if fitnessFn team / maxFitness >= prob
     then return team
     else selectFrom maxFitness fitnessFn teams
