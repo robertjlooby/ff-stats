@@ -32,6 +32,7 @@ executable best-teams
                      , dhall
                      , ekg
                      , lens
+                     , monad-logger
                      , QuickCheck
                      , quickcheck-instances
                      , optparse-applicative
@@ -89,6 +90,7 @@ test-suite ff-stats-test
                      , dhall
                      , hspec
                      , lens
+                     , monad-logger
                      , QuickCheck
                      , quickcheck-instances
                      , random
