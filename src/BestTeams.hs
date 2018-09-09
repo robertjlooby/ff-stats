@@ -10,7 +10,7 @@ import Control.Monad.Trans.State.Lazy (get, put)
 import Data.List (sortBy)
 import Data.Set (difference, fromList, size)
 import Data.Vector (Vector)
-import System.Random (getStdRandom, randomR)
+import System.Random (randomR)
 
 import BestTeamsConfig
 import Fitness
@@ -97,13 +97,15 @@ mutatePair first second = do
 
 mutate :: Lens' Team PlayerWithProjected -> (Team, Team) -> App (Team, Team)
 mutate position (first, second) = do
-  prob <- liftIO $ getStdRandom $ randomR (0, 1)
   crossoverProb <- asks _crossoverProb
-  if prob < crossoverProb && okToSwap
-    then return
-           ( set position (second ^. position) first
-           , set position (first ^. position) second)
-    else return (first, second)
+  lift $ do
+    (prob, seed') <- randomR (0, 1) <$> get
+    put seed'
+    if prob < crossoverProb && okToSwap
+      then return
+             ( set position (second ^. position) first
+             , set position (first ^. position) second)
+      else return (first, second)
   where
     okToSwap =
       notElem (second ^. position) (allPlayers first) &&
