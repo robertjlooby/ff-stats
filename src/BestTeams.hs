@@ -4,8 +4,6 @@ module BestTeams where
 
 import Control.Lens (Lens', (^.), set)
 import Control.Monad (foldM, replicateM)
-import Control.Monad.IO.Class (liftIO)
-import Control.Monad.Trans.Class (lift)
 import Data.List (sortBy)
 import Data.Set (difference, fromList, size)
 import Data.Vector (Vector)
@@ -54,8 +52,7 @@ nextGeneration teams = do
   fitnessFn <- fitness
   let fitnesses = fitnessFn <$> teams
   let maxFitness = maximum fitnesses
-  liftIO $
-    putStrLn $
+  logInfo $
     "max fitness: " ++
     show maxFitness ++
     " avg fitness: " ++ show (sum fitnesses / fromIntegral (length teams))
