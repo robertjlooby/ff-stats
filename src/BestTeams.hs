@@ -53,13 +53,13 @@ getTop allTeams = do
 nextGeneration :: [Team] -> App [Team]
 nextGeneration teams = do
   fitnessFn <- fitness
-  let maxFitness = maximum $ fitnessFn <$> teams
+  let fitnesses = fitnessFn <$> teams
+  let maxFitness = maximum fitnesses
   liftIO $
     putStrLn $
     "max fitness: " ++
     show maxFitness ++
-    " avg fitness: " ++
-    show (sum (fitnessFn <$> teams) / fromIntegral (length teams))
+    " avg fitness: " ++ show (sum fitnesses / fromIntegral (length teams))
   newTeams <- replicateM (length teams) (selectFrom maxFitness fitnessFn teams)
   mutateTeams newTeams
 
