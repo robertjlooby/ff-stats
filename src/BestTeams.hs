@@ -4,6 +4,7 @@ module BestTeams where
 
 import Control.Lens (Lens', (^.), set)
 import Control.Monad (foldM, replicateM)
+import Control.Monad.Logger (MonadLogger)
 import Data.List (sortBy)
 import Data.Set (difference, fromList, size)
 import Data.Vector (Vector)
@@ -14,20 +15,20 @@ import GenerateTeam
 import Teams
 import Types
 
-pickBestLineups :: Vector PlayerWithProjected -> App [Team]
+pickBestLineups :: MonadLogger m => Vector PlayerWithProjected -> App m [Team]
 pickBestLineups players = do
-  iterationRounds <- asks _iterationRounds
-  poolSize <- fromInteger <$> asks _poolSize
+  iterationRounds <- App $ asks _iterationRounds
+  poolSize <- fromInteger <$> (App $ asks _poolSize)
   teams <- replicateM poolSize (generateTeam pool)
   newTeams <- foldM (\ts _ -> nextGeneration ts) teams [1 .. iterationRounds]
   getTop newTeams
   where
     pool = generatePlayerPool players
 
-getTop :: [Team] -> App [Team]
+getTop :: Monad m => [Team] -> App m [Team]
 getTop allTeams = do
-  minTeamDifference <- asks _minTeamDifference
-  resultCount <- asks _resultCount
+  minTeamDifference <- App $ asks _minTeamDifference
+  resultCount <- App $ asks _resultCount
   fitnessFn <- fitness
   return $ go minTeamDifference resultCount (sortedTeams fitnessFn) []
   where
@@ -47,7 +48,7 @@ getTop allTeams = do
             results
        in all (>= minTeamDifference) differences
 
-nextGeneration :: [Team] -> App [Team]
+nextGeneration :: MonadLogger m => [Team] -> App m [Team]
 nextGeneration teams = do
   fitnessFn <- fitness
   let fitnesses = fitnessFn <$> teams
@@ -59,7 +60,7 @@ nextGeneration teams = do
   newTeams <- replicateM (length teams) (selectFrom maxFitness fitnessFn teams)
   mutateTeams newTeams
 
-selectFrom :: Float -> (Team -> Float) -> [Team] -> App Team
+selectFrom :: Monad m => Float -> (Team -> Float) -> [Team] -> App m Team
 selectFrom maxFitness fitnessFn teams = do
   prob <- getRandom (0, 1)
   team <- (teams !!) <$> getRandom (0, length teams - 1)
@@ -67,14 +68,14 @@ selectFrom maxFitness fitnessFn teams = do
     then return team
     else selectFrom maxFitness fitnessFn teams
 
-mutateTeams :: [Team] -> App [Team]
+mutateTeams :: Monad m => [Team] -> App m [Team]
 mutateTeams (first:second:rest) = do
   mutated <- mutatePair first second
   mutatedRest <- mutateTeams rest
   return $ mutated ++ mutatedRest
 mutateTeams teams = return teams
 
-mutatePair :: Team -> Team -> App [Team]
+mutatePair :: Monad m => Team -> Team -> App m [Team]
 mutatePair first second = do
   (first', second') <-
     mutate qb (first, second) >>= mutate rb1 >>= mutate rb2 >>= mutate wr1 >>=
@@ -85,9 +86,13 @@ mutatePair first second = do
     mutate dst
   return [first', second']
 
-mutate :: Lens' Team PlayerWithProjected -> (Team, Team) -> App (Team, Team)
+mutate ::
+     Monad m
+  => Lens' Team PlayerWithProjected
+  -> (Team, Team)
+  -> App m (Team, Team)
 mutate position (first, second) = do
-  crossoverProb <- asks _crossoverProb
+  crossoverProb <- App $ asks _crossoverProb
   prob <- getRandom (0, 1)
   if prob < crossoverProb && okToSwap
     then return

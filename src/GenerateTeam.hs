@@ -18,7 +18,7 @@ generatePlayerPool players =
     getPlayers pos = V.toList . V.filter (\p -> getPos p == pos) $ players
     getPos = _position . _player
 
-generateTeam :: PlayerPool -> App Team
+generateTeam :: Monad m => PlayerPool -> App m Team
 generateTeam pool = do
   (qb, _) <- popRandom $ _qbs pool
   (rb1, rbs') <- popRandom $ _rbs pool
@@ -31,7 +31,7 @@ generateTeam pool = do
   (dst, _) <- popRandom $ _dsts pool
   return $ Team qb rb1 rb2 wr1 wr2 wr3 te flex dst
 
-popRandom :: [a] -> App (a, [a])
+popRandom :: Monad m => [a] -> App m (a, [a])
 popRandom list = do
   i <- getRandom (0, length list - 1)
   let (h, a:t) = splitAt i list

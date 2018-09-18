@@ -7,11 +7,12 @@ import Types
 salary :: Team -> Integer
 salary = toInteger . sum . (fmap . fmap) (_salary . _player) allPlayers
 
-fitness :: App (Team -> Float)
-fitness = do
-  strategy <- asks _strategy
-  salaryCap <- asks _salaryCap
-  return $ fitness' strategy salaryCap
+fitness :: Monad m => App m (Team -> Float)
+fitness =
+  App $ do
+    strategy <- asks _strategy
+    salaryCap <- asks _salaryCap
+    return $ fitness' strategy salaryCap
 
 fitness' :: Strategy -> Integer -> Team -> Float
 fitness' strategy salaryCap team
