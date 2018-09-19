@@ -1,4 +1,5 @@
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE RankNTypes #-}
 
 module BestTeamsConfig
   ( module BestTeamsConfig
@@ -6,7 +7,7 @@ module BestTeamsConfig
   , asks
   ) where
 
-import Control.Monad.Logger (LoggingT, logInfoN, runStdoutLoggingT)
+import Control.Monad.Logger (MonadLogger, logInfoN, runStdoutLoggingT)
 import Control.Monad.Trans.Class (lift)
 import Control.Monad.Trans.Reader (ReaderT, ask, asks, runReaderT)
 import Control.Monad.Trans.State.Lazy (StateT, evalStateT, get, put)
@@ -14,7 +15,9 @@ import Data.Text (pack)
 import Dhall (Generic, Interpret)
 import System.Random (Random, StdGen, randomR)
 
-type App = ReaderT Config (StateT StdGen (LoggingT IO))
+type App a
+   = forall m. (MonadLogger m) =>
+                 ReaderT Config (StateT StdGen m) a
 
 runApp :: App a -> Config -> StdGen -> IO a
 runApp app config seed =

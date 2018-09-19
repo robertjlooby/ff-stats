@@ -1,3 +1,5 @@
+{-# LANGUAGE RankNTypes #-}
+
 module GenerateTeam where
 
 import qualified Data.Vector as V
