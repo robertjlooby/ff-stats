@@ -77,12 +77,9 @@ mutateTeams teams = return teams
 mutatePair :: Team -> Team -> App [Team]
 mutatePair first second = do
   (first', second') <-
-    mutate qb (first, second) >>= mutate rb1 >>= mutate rb2 >>= mutate wr1 >>=
-    mutate wr2 >>=
-    mutate wr3 >>=
-    mutate te >>=
-    mutate flex >>=
-    mutate dst
+    mutate qb1 (first, second) >>= mutate qb2 >>= mutate qb3 >>= mutate qb4 >>=
+    mutate qb5 >>=
+    mutate qb6
   return [first', second']
 
 mutate :: Lens' Team PlayerWithProjected -> (Team, Team) -> App (Team, Team)
