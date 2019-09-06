@@ -4,5 +4,5 @@
 , _poolSize = +1000
 , _resultCount = +5
 , _salaryCap = +50000
-, _strategy = < Normal = {=} | Stacked : {} >
+, _strategy = < Stacked | Normal >.Normal
 }

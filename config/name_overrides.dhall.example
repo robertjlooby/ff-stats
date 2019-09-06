@@ -1,40 +1,36 @@
    let pName = \(n : Text) -> {getPlayerName = n}
 in let pTeam = \(t : Text) -> {getTeamName = t}
-in let dst   = < DST = {=} | QB : {} | RB : {} | TE : {} | WR : {} >
-in let qb    = < QB = {=} | DST : {} | RB : {} | TE : {} | WR : {} >
-in let rb    = < RB = {=} | DST : {} | QB : {} | TE : {} | WR : {} >
-in let te    = < TE = {=} | DST : {} | QB : {} | RB : {} | WR : {} >
-in let wr    = < WR = {=} | DST : {} | QB : {} | RB : {} | TE : {} >
-in [ {_1 = {name = pName "49ers ", position = dst, team = pTeam "SF"}, _2 = "san-francisco-defense"}
-   , {_1 = {name = pName "Bears ", position = dst, team = pTeam "CHI"}, _2 = "chicago-defense"}
-   , {_1 = {name = pName "Bengals ", position = dst, team = pTeam "CIN"}, _2 = "cincinnati-defense"}
-   , {_1 = {name = pName "Bills ", position = dst, team = pTeam "BUF"}, _2 = "buffalo-defense"}
-   , {_1 = {name = pName "Broncos ", position = dst, team = pTeam "DEN"}, _2 = "denver-defense"}
-   , {_1 = {name = pName "Browns ", position = dst, team = pTeam "CLE"}, _2 = "cleveland-defense"}
-   , {_1 = {name = pName "Buccaneers ", position = dst, team = pTeam "TB"}, _2 = "tampa-bay-defense"}
-   , {_1 = {name = pName "Cardinals ", position = dst, team = pTeam "ARI"}, _2 = "arizona-defense"}
-   , {_1 = {name = pName "Chargers ", position = dst, team = pTeam "LAC"}, _2 = "san-diego-defense"}
-   , {_1 = {name = pName "Chiefs ", position = dst, team = pTeam "KC"}, _2 = "kansas-city-defense"}
-   , {_1 = {name = pName "Colts ", position = dst, team = pTeam "IND"}, _2 = "indianapolis-defense"}
-   , {_1 = {name = pName "Cowboys ", position = dst, team = pTeam "DAL"}, _2 = "dallas-defense"}
-   , {_1 = {name = pName "Dolphins ", position = dst, team = pTeam "MIA"}, _2 = "miami-defense"}
-   , {_1 = {name = pName "Eagles ", position = dst, team = pTeam "PHI"}, _2 = "philadelphia-defense"}
-   , {_1 = {name = pName "Falcons ", position = dst, team = pTeam "ATL"}, _2 = "atlanta-defense"}
-   , {_1 = {name = pName "Giants ", position = dst, team = pTeam "NYG"}, _2 = "new-york-giants-defense"}
-   , {_1 = {name = pName "Jaguars ", position = dst, team = pTeam "JAX"}, _2 = "jacksonville-defense"}
-   , {_1 = {name = pName "Jets ", position = dst, team = pTeam "NYJ"}, _2 = "new-york-jets-defense"}
-   , {_1 = {name = pName "Lions ", position = dst, team = pTeam "DET"}, _2 = "detroit-defense"}
-   , {_1 = {name = pName "Packers ", position = dst, team = pTeam "GB"}, _2 = "green-bay-defense"}
-   , {_1 = {name = pName "Panthers ", position = dst, team = pTeam "CAR"}, _2 = "carolina-defense"}
-   , {_1 = {name = pName "Patriots ", position = dst, team = pTeam "NE"}, _2 = "new-england-defense"}
-   , {_1 = {name = pName "Raiders ", position = dst, team = pTeam "OAK"}, _2 = "oakland-defense"}
-   , {_1 = {name = pName "Rams ", position = dst, team = pTeam "LAR"}, _2 = "los-angeles-defense"}
-   , {_1 = {name = pName "Ravens ", position = dst, team = pTeam "BAL"}, _2 = "baltimore-defense"}
-   , {_1 = {name = pName "Redskins ", position = dst, team = pTeam "WAS"}, _2 = "washington-defense"}
-   , {_1 = {name = pName "Saints ", position = dst, team = pTeam "NO"}, _2 = "new-orleans-defense"}
-   , {_1 = {name = pName "Seahawks ", position = dst, team = pTeam "SEA"}, _2 = "seattle-defense"}
-   , {_1 = {name = pName "Steelers ", position = dst, team = pTeam "PIT"}, _2 = "pittsburgh-defense"}
-   , {_1 = {name = pName "Texans ", position = dst, team = pTeam "HOU"}, _2 = "houston-defense"}
-   , {_1 = {name = pName "Titans ", position = dst, team = pTeam "TEN"}, _2 = "tennessee-defense"}
-   , {_1 = {name = pName "Vikings ", position = dst, team = pTeam "MIN"}, _2 = "minnesota-defense"}
+in let Position = < DST | QB | RB | TE | WR >
+in [ {_1 = {name = pName "49ers ", position = Position.DST, team = pTeam "SF"}, _2 = "san-francisco-defense"}
+   , {_1 = {name = pName "Bears ", position = Position.DST, team = pTeam "CHI"}, _2 = "chicago-defense"}
+   , {_1 = {name = pName "Bengals ", position = Position.DST, team = pTeam "CIN"}, _2 = "cincinnati-defense"}
+   , {_1 = {name = pName "Bills ", position = Position.DST, team = pTeam "BUF"}, _2 = "buffalo-defense"}
+   , {_1 = {name = pName "Broncos ", position = Position.DST, team = pTeam "DEN"}, _2 = "denver-defense"}
+   , {_1 = {name = pName "Browns ", position = Position.DST, team = pTeam "CLE"}, _2 = "cleveland-defense"}
+   , {_1 = {name = pName "Buccaneers ", position = Position.DST, team = pTeam "TB"}, _2 = "tampa-bay-defense"}
+   , {_1 = {name = pName "Cardinals ", position = Position.DST, team = pTeam "ARI"}, _2 = "arizona-defense"}
+   , {_1 = {name = pName "Chargers ", position = Position.DST, team = pTeam "LAC"}, _2 = "san-diego-defense"}
+   , {_1 = {name = pName "Chiefs ", position = Position.DST, team = pTeam "KC"}, _2 = "kansas-city-defense"}
+   , {_1 = {name = pName "Colts ", position = Position.DST, team = pTeam "IND"}, _2 = "indianapolis-defense"}
+   , {_1 = {name = pName "Cowboys ", position = Position.DST, team = pTeam "DAL"}, _2 = "dallas-defense"}
+   , {_1 = {name = pName "Dolphins ", position = Position.DST, team = pTeam "MIA"}, _2 = "miami-defense"}
+   , {_1 = {name = pName "Eagles ", position = Position.DST, team = pTeam "PHI"}, _2 = "philadelphia-defense"}
+   , {_1 = {name = pName "Falcons ", position = Position.DST, team = pTeam "ATL"}, _2 = "atlanta-defense"}
+   , {_1 = {name = pName "Giants ", position = Position.DST, team = pTeam "NYG"}, _2 = "new-york-giants-defense"}
+   , {_1 = {name = pName "Jaguars ", position = Position.DST, team = pTeam "JAX"}, _2 = "jacksonville-defense"}
+   , {_1 = {name = pName "Jets ", position = Position.DST, team = pTeam "NYJ"}, _2 = "new-york-jets-defense"}
+   , {_1 = {name = pName "Lions ", position = Position.DST, team = pTeam "DET"}, _2 = "detroit-defense"}
+   , {_1 = {name = pName "Packers ", position = Position.DST, team = pTeam "GB"}, _2 = "green-bay-defense"}
+   , {_1 = {name = pName "Panthers ", position = Position.DST, team = pTeam "CAR"}, _2 = "carolina-defense"}
+   , {_1 = {name = pName "Patriots ", position = Position.DST, team = pTeam "NE"}, _2 = "new-england-defense"}
+   , {_1 = {name = pName "Raiders ", position = Position.DST, team = pTeam "OAK"}, _2 = "oakland-defense"}
+   , {_1 = {name = pName "Rams ", position = Position.DST, team = pTeam "LAR"}, _2 = "los-angeles-defense"}
+   , {_1 = {name = pName "Ravens ", position = Position.DST, team = pTeam "BAL"}, _2 = "baltimore-defense"}
+   , {_1 = {name = pName "Redskins ", position = Position.DST, team = pTeam "WAS"}, _2 = "washington-defense"}
+   , {_1 = {name = pName "Saints ", position = Position.DST, team = pTeam "NO"}, _2 = "new-orleans-defense"}
+   , {_1 = {name = pName "Seahawks ", position = Position.DST, team = pTeam "SEA"}, _2 = "seattle-defense"}
+   , {_1 = {name = pName "Steelers ", position = Position.DST, team = pTeam "PIT"}, _2 = "pittsburgh-defense"}
+   , {_1 = {name = pName "Texans ", position = Position.DST, team = pTeam "HOU"}, _2 = "houston-defense"}
+   , {_1 = {name = pName "Titans ", position = Position.DST, team = pTeam "TEN"}, _2 = "tennessee-defense"}
+   , {_1 = {name = pName "Vikings ", position = Position.DST, team = pTeam "MIN"}, _2 = "minnesota-defense"}
 ]
