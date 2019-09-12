@@ -3,10 +3,12 @@
 
 module Types where
 
+import           Control.Applicative ( (<|>) )
 import qualified Data.ByteString.Char8 as BS
 import           Data.Csv
        ( (.:), (.=), DefaultOrdered(..), FromField(..), FromNamedRecord(..)
-       , ToField(..), ToNamedRecord(..), header, namedRecord )
+       , NamedRecord, Parser, ToField(..), ToNamedRecord(..), header
+       , namedRecord )
 import           Data.Semigroup ( (<>) )
 import           Data.String ( IsString )
 import qualified Data.Text as T
@@ -37,6 +39,7 @@ instance FromField Position where
       | s == "WR" = pure WR
       | s == "TE" = pure TE
       | s == "DST" = pure DST
+      | s == "DEF" = pure DST
       | otherwise = fail . show $ "Cannot parse Position from: " <> s
 
 instance ToField Position where
@@ -46,7 +49,7 @@ newtype PlayerName =
     PlayerName
         { getPlayerName :: T.Text
         }
-    deriving ( Eq, FromField, Generic, IsString, Ord, Show, ToField )
+    deriving ( Eq, FromField, Generic, IsString, Ord, Semigroup, Show, ToField )
 
 instance Interpret PlayerName
 
@@ -57,7 +60,7 @@ newtype PlayerNameAndId =
     PlayerNameAndId
         { getPlayerNameAndId :: T.Text
         }
-    deriving ( Eq, FromField, IsString, Ord, Show, ToField )
+    deriving ( Eq, FromField, IsString, Ord, Semigroup, Show, ToField )
 
 instance Arbitrary PlayerNameAndId where
     arbitrary = PlayerNameAndId <$> arbitrary
@@ -93,14 +96,33 @@ instance Arbitrary Player where
         <*> arbitrary
         <*> arbitrary
 
+parseYahooName :: NamedRecord -> Parser PlayerName
+parseYahooName m = do
+    fn <- m .: "First Name"
+    ln <- m .: "Last Name"
+    return $ fn <> " " <> ln
+
+parseYahooNameAndId :: NamedRecord -> Parser PlayerNameAndId
+parseYahooNameAndId m = do
+    fn <- m .: "First Name"
+    ln <- m .: "Last Name"
+    playerId <- m .: "Id"
+    return $ fn <> " " <> ln <> " (" <> playerId <> ")"
+
+parseYahooGameInfo :: NamedRecord -> Parser T.Text
+parseYahooGameInfo m = do
+    game <- m .: "Game"
+    time <- m .: "Time"
+    return $ game <> " " <> time
+
 instance FromNamedRecord Player where
     parseNamedRecord m =
-        Player <$> m .: "Name"
-        <*> m .: "Name + ID"
+        Player <$> (m .: "Name" <|> parseYahooName m)
+        <*> (m .: "Name + ID" <|> parseYahooNameAndId m)
         <*> m .: "Position"
         <*> m .: "Salary"
-        <*> m .: "Game Info"
-        <*> m .: "TeamAbbrev"
+        <*> (m .: "Game Info" <|> parseYahooGameInfo m)
+        <*> (m .: "TeamAbbrev" <|> m .: "Team")
 
 data PlayerWithProjected =
     PlayerWithProjected
