@@ -106,7 +106,7 @@ parseYahooNameAndId :: NamedRecord -> Parser PlayerNameAndId
 parseYahooNameAndId m = do
     fn <- m .: "First Name"
     ln <- m .: "Last Name"
-    playerId <- m .: "Id"
+    playerId <- (m .: "Id") <|> (m .: "ID")
     return $ fn <> " " <> ln <> " (" <> playerId <> ")"
 
 parseYahooGameInfo :: NamedRecord -> Parser T.Text
